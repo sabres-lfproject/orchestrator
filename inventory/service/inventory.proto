@@ -1,0 +1,122 @@
+syntax = 'proto3';
+
+option go_package = "pulwar.isi.edu/sabres/orchestrator/inventory";
+
+package sabres;
+
+service Inventory {
+  rpc CreateInventoryItem (CreateInventoryItemRequest) returns (InventoryItemResponse) {}
+  rpc ModifyInventoryItem (ModifyInventoryItemRequest) returns (InventoryItemResponse) {}
+  rpc DeleteInventoryItem (DeleteInventoryItemRequest) returns (InventoryItemResponse) {}
+
+  rpc ListInventoryItems (ListInventoryItemsRequest) returns (ListInventoryItemsResponse) {}
+  rpc GetInventoryItem (GetInventoryItemRequest) returns (GetItemResponse) {}
+  rpc GetResourceItem (GetResourceItemRequest) returns (GetItemResponse) {}
+}
+
+
+message Physical {
+    int64 cores = 1;
+    int64 memory = 2;
+    int64 storage = 3;
+    int64 network = 4;
+}
+
+message Virtual {
+    int64 cores = 1;
+    int64 memory = 2;
+    int64 storage = 3;
+    int64 network = 4;
+}
+
+message Bios {
+    bool simd128 = 1;
+    bool simd256 = 2;
+    bool simd512 = 3;
+    bool aesni = 4;
+    bool rdrand = 5;
+    bool vmx = 6;
+}
+
+message Location {
+    string country = 1;
+    string state = 2;
+    string county = 3;
+    string city = 4;
+    string address = 5;
+    string cage = 6;
+    string rack = 7;
+    string slot = 8;
+
+    string pdu = 9;
+    string upstream = 10;
+    string bmc = 11;
+}
+
+message ResourceItem {
+    string Name = 1;
+    string Uuid = 2;
+    Physical phy = 3;
+    Virtual virt = 4;
+    Bios flags = 5;
+    Location locale = 6;
+    string notes = 7;
+    string parent = 8;
+    int64 version = 9;
+}
+
+
+message Entity {
+    enum Identity {
+        UNKNOWN = 0;
+        IP = 1;
+        DNS = 2;
+        MAC = 3;
+    }
+
+    Identity idtype = 1;
+    string identification = 2;
+}
+
+message InventoryItem {
+    ResourceItem resource = 1;
+    Entity entity = 2;
+    string notes = 3;
+    string uuid = 4;
+    int64 version = 5;
+}
+
+
+message CreateInventoryItemRequest {
+    InventoryItem request = 1;
+}
+
+message InventoryItemResponse {
+    string ioUuid = 1;
+    string roUuid = 2;
+}
+
+message ModifyInventoryItemRequest {
+    InventoryItem request = 1;
+}
+
+message DeleteInventoryItemRequest {
+    InventoryItem request = 1;
+}
+
+message ListInventoryItemsRequest {}
+message ListInventoryItemsResponse {
+    repeated InventoryItem items = 1;
+}
+
+message GetInventoryItemRequest {
+    string uuid = 1;
+}
+
+message GetResourceItemRequest {
+    string uuid = 1;
+}
+
+message GetItemResponse {
+    InventoryItem item = 1;
+}
