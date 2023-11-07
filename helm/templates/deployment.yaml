@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  annotations:
+    k8s.v1.cni.cncf.io/networks: xp-net
+spec:
+  replicas: {{.Values.Replicas }}
+  selector:
+    matchLabels:
+      app: orchestrator
+  template:
+    metadata:
+      labels:
+        app: orchestrator
+    spec:
+      containers:
+      - name: inventory
+        image: {{.Values.orchestrator.inventory.image | quote}}
+        ports:
+          - containerPort: {{.Values.orchestrator.inventory.port }}
+        env:
+          - name: ETCDHOST
+            value: "localhost"
+          - name: ETCDPORT
+            value: {{.Values.etcd.port | quote}}
+          - name: MOAPORT
+            value: {{.Values.orchestrator.inventory.port | quote}}
+        volumeMounts:
+        - name: {{ .Release.Name }}-vol
+          mountPath: /var/orchestrator/config.cfg
+          subPath: config.cfg
+          readOnly: true
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      - name: etcd
+        image: {{.Values.etcd.image | quote}}
+        ports:
+          - containerPort: {{.Values.etcd.port }}
+        env:
+          - name: ALLOW_NONE_AUTHENTICATION
+            value: "yes"
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      volumes:
+        - name: {{ .Release.Name }}-vol
+          configMap:
+            name: {{ .Release.Name }}-configmap

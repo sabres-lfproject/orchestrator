@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-ports
+  labels:
+    app: orchestrator
+spec:
+  type: NodePort
+  ports:
+    - port: {{ .Values.orchestrator.inventory.port }}
+      targetPort: {{ .Values.orchestrator.inventory.ext.port }}
+      nodePort: 32500
+      protocol: TCP
+      name: orchestrator-inventory-external
+    - port: {{ .Values.etcd.port }}
+      targetPort: {{ .Values.etcd.ext.port }}
+      nodePort: 32501
+      protocol: TCP
+      name: etcd-external
+  selector:
+    run: orchestrator
+    #matchLabels:
+    #  app: orchestrator

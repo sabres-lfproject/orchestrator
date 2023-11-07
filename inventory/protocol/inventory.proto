@@ -1,8 +1,8 @@
 syntax = 'proto3';
 
-option go_package = "pulwar.isi.edu/sabres/orchestrator/inventory";
+option go_package = "pulwar.isi.edu/sabres/orchestrator/inventory/protocol";
 
-package sabres;
+package protocol;
 
 service Inventory {
   rpc CreateInventoryItem (CreateInventoryItemRequest) returns (InventoryItemResponse) {}

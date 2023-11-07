@@ -14,8 +14,9 @@ import (
 
 	// merge deps
 	"gitlab.com/mergetb/tech/stor"
-	inv "pulwar.isi.edu/sabres/orchestrator/inventory/service"
-	pkg "pulwar.isi.edu/sabres/orchestrator/pkg"
+	pkg "pulwar.isi.edu/sabres/orchestrator/inventory/pkg"
+	inv "pulwar.isi.edu/sabres/orchestrator/inventory/protocol"
+	config "pulwar.isi.edu/sabres/orchestrator/pkg"
 
 	// deps
 	uuid "github.com/google/uuid"
@@ -296,7 +297,7 @@ func main() {
 	var debug bool
 	var port int
 
-	flag.IntVar(&port, "port", 5555, "set the Inventoryd control port")
+	flag.IntVar(&port, "port", pkg.DefaultInventoryPort, "set the Inventoryd control port")
 	flag.BoolVar(&debug, "debug", false, "enable extra debug logging")
 
 	portStr := os.Getenv("MOAPORT")
@@ -326,18 +327,18 @@ func main() {
 		log.SetLevel(log.InfoLevel)
 	}
 
-	cfg, err := pkg.LoadConfig(EtcdConfigPath)
+	cfg, err := config.LoadConfig(EtcdConfigPath)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 
 	// read in environment variables for container
-	err = pkg.ReadENVSettings(cfg)
+	err = config.ReadENVSettings(cfg)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 
-	etcdCfg, err := pkg.SetEtcdSettings(cfg)
+	etcdCfg, err := config.SetEtcdSettings(cfg)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}

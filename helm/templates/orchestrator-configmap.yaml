@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+  labels:
+    app: orchestrator
+data:
+    #{{ .Files.Get "files/config.yaml" | nindent 2 | quote }}
+  config.cfg:  {{ .Files.Get "files/config.yaml" | toYaml | indent 2 }}

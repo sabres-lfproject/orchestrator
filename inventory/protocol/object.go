@@ -1,6 +1,11 @@
-package inventory
+package protocol
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
+)
 
 var (
 	InvPrefix = "/inventory"
@@ -10,6 +15,10 @@ var (
 // Required functions for stor
 // InventoryItem definitions
 func (x *InventoryItem) Key() string {
+	_, err := uuid.Parse(x.Uuid)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return fmt.Sprintf("%s/%s", InvPrefix, x.Uuid)
 }
 
@@ -19,6 +28,11 @@ func (x *InventoryItem) Value() interface{} { return x }
 
 // ResourceItem definitions
 func (x *ResourceItem) Key() string {
+	_, err := uuid.Parse(x.Uuid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return fmt.Sprintf("%s/%s", ResPrefix, x.Uuid)
 }
 
