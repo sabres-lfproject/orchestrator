@@ -24,7 +24,7 @@ spec:
             value: "localhost"
           - name: ETCDPORT
             value: {{.Values.etcd.port | quote}}
-          - name: MOAPORT
+          - name: INVENTORYPORT
             value: {{.Values.orchestrator.inventory.port | quote}}
         volumeMounts:
         - name: {{ .Release.Name }}-vol
@@ -46,7 +46,48 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
+      - name: discovery
+        image: {{.Values.orchestrator.discovery.image | quote}}
+        ports:
+          - containerPort: {{.Values.orchestrator.discovery.port }}
+        env:
+          - name: ETCDHOST
+            value: "localhost"
+          - name: ETCDPORT
+            value: {{.Values.etcd.port | quote}}
+          - name: DISCOVERYPORT
+            value: {{.Values.orchestrator.discovery.port | quote}}
+        volumeMounts:
+        - name: {{ .Release.Name }}-vol
+          mountPath: /var/orchestrator/config.cfg
+          subPath: config.cfg
+          readOnly: true
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      - name: mock-discovery
+        image: {{.Values.orchestrator.mock.discovery.image | quote}}
+        ports:
+          - containerPort: {{.Values.orchestrator.mock.discovery.port }}
+        env:
+          - name: ETCDHOST
+            value: "localhost"
+          - name: ETCDPORT
+            value: {{.Values.etcd.port | quote}}
+          - name: MOCKDISCOVERYPORT
+            value: {{.Values.orchestrator.mock.discovery.port | quote}}
+        volumeMounts:
+        - name: {{ .Release.Name }}-vol
+          mountPath: /var/orchestrator/config.cfg
+          subPath: config.cfg
+          readOnly: true
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
       volumes:
         - name: {{ .Release.Name }}-vol
           configMap:
             name: {{ .Release.Name }}-configmap
+

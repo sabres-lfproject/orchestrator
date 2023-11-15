@@ -1,0 +1,12 @@
+{
+"endpoints": [
+  {
+    "services": {
+      "name": "mock",
+      "uuid": "12"
+    },
+    "uri": "localhost:15015",
+    "version": 12
+  }
+]
+}

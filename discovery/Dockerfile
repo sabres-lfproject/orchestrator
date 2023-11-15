@@ -38,9 +38,9 @@ RUN mkdir /etc/orchestrator
 
 ENV ETCDPORT 2379
 ENV ETCDHOST localhost
-ENV INVENTORYPORT 15000
+ENV DISCOVERYPORT 15005
 
 # orchestratorctld grpc
-EXPOSE ${INVENTORYPORT}
+EXPOSE ${DISCOVERYPORT}
 
-CMD /usr/bin/iservice
+CMD /usr/bin/dservice

@@ -7,11 +7,11 @@ import (
 	log "github.com/sirupsen/logrus"
 	protocol "pulwar.isi.edu/sabres/orchestrator/inventory/protocol"
 
-	"gopkg.in/yaml.v2"
+	"encoding/json"
 )
 
 type ServiceConfig struct {
-	Inventory []*protocol.InventoryItem `yaml:"inventory"`
+	Inventory []*protocol.InventoryItem `json:"inventory,omitempty"`
 }
 
 func LoadInventoryItemConfig(configPath string) ([]*protocol.InventoryItem, error) {
@@ -25,7 +25,7 @@ func LoadInventoryItemConfig(configPath string) ([]*protocol.InventoryItem, erro
 	log.Infof("%s", data)
 
 	cfg := &ServiceConfig{}
-	err = yaml.Unmarshal(data, cfg)
+	err = json.Unmarshal(data, cfg)
 	if err != nil {
 		log.Errorf("could not parse configuration file")
 		return nil, err

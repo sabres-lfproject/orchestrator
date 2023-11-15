@@ -1,0 +1,64 @@
+syntax = 'proto3';
+
+option go_package = "pulwar.isi.edu/sabres/orchestrator/discovery/protocol";
+
+package protocol;
+
+service Discovery {
+  rpc CreateDEP (CreateDEPRequest) returns (CRUDDEPResponse) {}
+  rpc ModifyDEP (ModifyDEPRequest) returns (CRUDDEPResponse) {}
+  rpc DeleteDEP (DeleteDEPRequest) returns (CRUDDEPResponse) {}
+
+  rpc ListDEPs (ListDEPRequest) returns (ListDEPResponse) {}
+  rpc GetDEP (GetDEPRequest) returns (GetDEPResponse) {}
+}
+
+message Service {
+    string name = 1;
+    string uuid = 2;
+}
+
+message Authorization {
+    string token = 1;
+    string user = 2;
+    string password = 3;
+    string certificate = 4;
+}
+
+message Endpoint {
+    Service services = 1;
+    Authorization auth = 2;
+    string uri = 3;
+    int64 version = 4;
+}
+
+message CRUDDEPResponse {
+    string uuid = 1;
+}
+
+message CreateDEPRequest {
+    Endpoint endpoint = 1;
+}
+
+
+message ModifyDEPRequest {
+    string uuid = 1;
+    Endpoint endpoint = 2;
+}
+
+message DeleteDEPRequest {
+    string uuid = 1;
+}
+
+message ListDEPRequest {}
+message ListDEPResponse {
+    repeated Endpoint endpoints = 1;
+}
+
+message GetDEPRequest {
+    string uuid = 1;
+}
+
+message GetDEPResponse {
+    Endpoint endpoint = 1;
+}

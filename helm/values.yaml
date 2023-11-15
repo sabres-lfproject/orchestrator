@@ -8,12 +8,21 @@ image:
 
 orchestrator:
   inventory:
-    port: 15000
+    port: 15005
     ext:
-      port: 15000
+      port: 15005
     image: docker.io/isilincoln/orchestrator-inventory:latest
+  discovery:
+    port: 15010
+    ext:
+      port: 15010
+    image: docker.io/isilincoln/orchestrator-discovery:latest
   watcher:
     image: docker.io/isilincoln/orchestrator-watcher:latest
+  mock:
+    discovery:
+      image: docker.io/isilincoln/orchestrator-mock-discovery:latest
+      port: 15015
 
 etcd:
   port: 2379

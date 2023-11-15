@@ -1,0 +1,21 @@
+{
+    "inventory": [{
+        "resource": {
+            "name": "testing123",
+            "uuid": "1234",
+            "phy": {
+                "cores": 8,
+                "memory": 16,
+                "storage": 512,
+                "network": 1000
+            },
+            "flags": {
+                "simd512": true,
+                "smx": true
+            },
+            "notes": "test",
+            "uuid": "123",
+            "version": 0
+        }
+    }]
+}

@@ -21,7 +21,7 @@ ENV PATH "$PATH:$GOBIN"
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
 RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
 
-RUN make code
+RUN make mock
 
 FROM ubuntu:22.04 as final
 
@@ -38,9 +38,10 @@ RUN mkdir /etc/orchestrator
 
 ENV ETCDPORT 2379
 ENV ETCDHOST localhost
-ENV INVENTORYPORT 15000
+ENV MOCKDISCOVERYPORT 15015
+ENV DATADIR /data/discovery/mock/
 
 # orchestratorctld grpc
-EXPOSE ${INVENTORYPORT}
+EXPOSE ${MOCKDISCOVERYPORT}
 
-CMD /usr/bin/iservice
+CMD /usr/bin/dmock

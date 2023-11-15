@@ -1,0 +1,21 @@
+[
+        {
+            "physical": {
+                    "cores": 16,
+                    "memory": 64,
+                    "storage": 1024,
+                    "network": 1000
+            },
+            "virtual": {
+                "cores": 32
+            },
+            "flags": {
+                "simd128": true,
+                "simd256": true,
+                "simd512": false,
+                "aesni": true,
+                "rdrand": true,
+                "vmx": true
+            }
+        }
+]

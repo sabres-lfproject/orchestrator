@@ -1,0 +1,4 @@
+etcd:
+  address: localhost
+  port: 2379
+  timeout: 3000
