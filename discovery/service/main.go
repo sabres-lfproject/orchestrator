@@ -82,9 +82,9 @@ func (s *DiscoveryServer) CreateDEP(ctx context.Context, req *proto.CreateDEPReq
 		"Endpoint": ep.Uri,
 	}).Info("CreateDEP")
 
-	objs := []stor.Object{ep}
+	objs := stor.Object(ep)
 
-	err = stor.WriteObjects(objs, true)
+	err = stor.Write(objs, false)
 	if err != nil {
 		return nil, err
 	}
@@ -129,9 +129,9 @@ func (s *DiscoveryServer) ModifyDEP(ctx context.Context, req *proto.ModifyDEPReq
 	}
 	ep.Services.Uuid = rid
 
-	objs := []stor.Object{ep}
+	objs := stor.Object(ep)
 
-	err = stor.WriteObjects(objs, true)
+	err = stor.Write(objs, false)
 	if err != nil {
 		return nil, err
 	}
@@ -162,9 +162,9 @@ func (s *DiscoveryServer) DeleteDEP(ctx context.Context, req *proto.DeleteDEPReq
 		},
 	}
 
-	objs := []stor.Object{ro}
+	objs := stor.Object(ro)
 
-	err = stor.DeleteObjects(objs)
+	err = stor.Delete(objs)
 	if err != nil {
 		return nil, err
 	}

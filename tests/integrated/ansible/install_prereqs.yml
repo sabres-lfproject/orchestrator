@@ -1,0 +1,127 @@
+- hosts: [orchestrator]
+  tasks:
+    - name: update cache
+      apt:
+        update_cache: yes
+      become: yes
+
+    - name: disable apparmor
+      command: systemctl disable apparmor
+      become: yes
+
+    - name: stop apparmor
+      command: systemctl stop apparmor
+      become: yes
+
+    - name: disable swap
+      command: swapoff -a
+      become: yes
+
+    - name: remove swap from fstab
+      command: sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+      become: yes
+
+    - name: install snapd
+      apt:
+        pkg: snapd
+      become: yes
+
+    - name: uninstall all old packages
+      shell: snap remove --purge {{ item }}
+      loop:
+        - kubectl
+        - kubeadm
+        - microk8s
+        - helm
+        - docker
+      ignore_errors: yes
+      become: yes
+
+    - name: install snap dependencies
+      shell: snap install {{ item }}
+      loop:
+        - microk8s --classic --channel=1.28/stable
+        - kubectl --classic --channel=1.28/stable
+        - kubeadm --classic
+        - helm --classic
+        - docker
+      become: yes
+
+    - name: reset kubeadm before uninstalling
+      shell: yes | kubeadm reset
+      ignore_errors: yes
+      become: yes
+
+    - name: remove docker images
+      shell: yes | docker image prune
+      ignore_errors: yes
+      become: yes
+
+    - name: add user to mk8 group
+      shell: usermod -a -G microk8s rvn
+      become: yes
+
+    - name: remove kube directory 
+      shell: rm -rf {{ item }}/.kube
+      loop:
+        - /home/rvn
+        - /root
+      ignore_errors: yes
+      become: yes
+
+    - name: create kube file
+      shell: mkdir -p {{ item }}/.kube
+      loop:
+        - /home/rvn
+        - /root
+      become: yes
+
+    - name: check permissions on kube file
+      shell: chown -R rvn:rvn /home/rvn/.kube
+      become: yes
+
+    - name: reset ssh connection
+      meta: reset_connection
+
+    - name: stop microk8s
+      shell: microk8s stop
+
+    - name: start microk8s
+      shell: microk8s start
+
+    - name: setup kube config
+      shell: microk8s.kubectl config view --raw > {{ item }}
+      loop:
+        - /home/rvn/.kube/config
+        - /root/.kube/config
+      become: yes
+
+    - name: permissions
+      shell: chmod 700 {{ item }}
+      loop:
+        - /home/rvn/.kube/config
+        - /root/.kube/config
+      become: yes
+
+    - name: permissions
+      shell: chown -R rvn:rvn /home/rvn/.kube/config
+      become: yes
+
+    - name: wait for mk8s to come up
+      shell: microk8s status --wait-ready
+      become: yes
+
+    - name: setup firewall for k8
+      shell: ufw allow in on cni0 && sudo ufw allow out on cni0
+      become: yes
+
+    - name: setup firewall for k8 pt2
+      shell: ufw default allow routed
+      become: yes
+
+    - name: setup microk8s plugins
+      shell: microk8s enable helm dns storage prometheus ingress registry metrics-server
+      become: yes
+
+    - name: install metrics
+      shell: kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml

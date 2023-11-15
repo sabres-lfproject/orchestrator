@@ -25,8 +25,9 @@ import (
 )
 
 var (
-	EtcdConfigPath string = "/var/orchestrator/config.cfg"
-	EndpointConfig string = "/var/orchestrator/endpoints.cfg"
+	EtcdConfigPath string        = "/var/orchestrator/config.cfg"
+	EndpointConfig string        = "/var/orchestrator/endpoints.cfg"
+	ScanLatency    time.Duration = 60 * time.Second
 )
 
 func main() {
@@ -94,20 +95,23 @@ func main() {
 	// service loop
 	for true {
 
-		log.Infof("Debug: Scanning\n")
+		log.Debugf("Debug: Scanning\n")
 
 		// for each host found in etcd
 		eps, err := getEndpoints()
 		if err != nil {
-			log.Fatalf("Error in get Endpoints: %v\n", err)
+			log.Errorf("Error in get Endpoints: %v\n", err)
+			time.Sleep(ScanLatency)
+			continue
 		}
 		for _, ep := range eps {
+			log.Debugf("Endpoint found: %#v\n", ep)
 			err = scanEndpoint(ep)
 			if err != nil {
 				log.Errorf("%v\n", err)
 			}
 		}
-		time.Sleep(10 * time.Second)
+		time.Sleep(ScanLatency)
 	}
 }
 
@@ -127,8 +131,23 @@ func getEndpoints() ([]*proto.Endpoint, error) {
 		}
 
 		for _, kv := range resp.Kvs {
+			tmp := make(map[string]interface{})
+			err = json.Unmarshal(kv.Value, &tmp)
+			if err != nil {
+				return err
+			}
+
+			intVer, err := strconv.Atoi(string(tmp["version"].(string)))
+			if err != nil {
+				log.Errorf("Failure to parse version number: %v\n", err)
+				continue
+			}
+
+			tmp["version"] = int64(intVer)
+			jsonString, _ := json.Marshal(tmp)
+
 			ep := &proto.Endpoint{}
-			err = json.Unmarshal(kv.Value, ep)
+			err = json.Unmarshal(jsonString, ep)
 			if err != nil {
 				return err
 			}
@@ -149,24 +168,28 @@ func getEndpoints() ([]*proto.Endpoint, error) {
 func scanEndpoint(ep *proto.Endpoint) error {
 	// scan the endpoint for resources
 
-	var resp *http.Response
-	var err error
-
-	if ep.Uri != "" {
-		resp, err = http.Get("%s/resources")
-	} else {
+	if ep.Uri == "" {
 		log.Warnf("endpoint: %s missing URI", ep.Key())
 		return fmt.Errorf("Missing URI endpoint for %s", ep.Key())
 	}
 
+	resp, err := http.Get(fmt.Sprintf("http://%s/resources", ep.Uri))
+	if err != nil {
+		return err
+	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	log.Debugf("Value: %#v\n", string(body))
 
 	// this will be a hack, but we need a format, so assume its in
 	// resource format
 
-	rec := &inventory.ResourceItem{}
-	err = json.Unmarshal(body, rec)
+	recList := make([]inventory.ResourceItem, 0)
+	err = json.Unmarshal(body, &recList)
 	if err != nil {
 		log.Warnf("Couldnt create resource: %v\n", err)
 		return err
@@ -183,48 +206,65 @@ func scanEndpoint(ep *proto.Endpoint) error {
 			return nil
 		}
 
+		resourceList := make([]*inventory.ResourceItem, 0)
+
 		// for inventory items, check each resource item (bad)
-		for _, io := range resp.Items {
-			if io.Resource == nil {
-				continue
+		for _, rec := range recList {
+
+			recFound := false
+
+			for _, io := range resp.Items {
+				if io.Resource == nil {
+					continue
+				}
+
+				// convert to map
+				ir := structs.Map(io.Resource)
+				or := structs.Map(rec)
+
+				// strip out uuids
+				delete(ir, "Uuid")
+				delete(ir, "Parent")
+				delete(or, "Uuid")
+				delete(or, "Parent")
+
+				log.Debugf("ir: %#v\n", ir)
+				log.Debugf("or: %#v\n", or)
+
+				eq := reflect.DeepEqual(ir, or)
+				if eq {
+					log.Infof("Resources already in inventory\n")
+					recFound = true
+					break
+				}
 			}
 
-			// convert to map
-			ir := structs.Map(io.Resource)
-			or := structs.Map(rec)
-
-			// strip out uuids
-			delete(ir, "Uuid")
-			delete(or, "Uuid")
-
-			b := reflect.DeepEqual(ir, or)
-			if b {
-				log.Infof("Resources already in inventory\n")
-				return nil
+			if !recFound {
+				resourceList = append(resourceList, &rec)
 			}
-
 		}
 
-		log.Infof("Resource not found in inventory, requesting add\n")
-
-		// add new inventory item
-		req := &inventory.CreateInventoryItemRequest{
-			Request: &inventory.InventoryItem{
-				Resource: rec,
-				Entity: &inventory.Entity{
-					Idtype: inventory.Entity_IP,
+		for _, rec := range resourceList {
+			log.Infof("Resource(s) not found in inventory, requesting add\n")
+			// add new inventory item
+			req := &inventory.CreateInventoryItemRequest{
+				Request: &inventory.InventoryItem{
+					Resource: rec,
+					Entity: &inventory.Entity{
+						Idtype: inventory.Entity_IP,
+					},
+					Notes: fmt.Sprintf("scanned by: %v", ep),
 				},
-				Notes: fmt.Sprintf("scanned by: %v", ep),
-			},
-		}
-		fmt.Printf("sent request to inventory: %v\n", req)
+			}
+			fmt.Printf("sent request to inventory: %v\n", req)
 
-		cii_resp, err := c.CreateInventoryItem(context.TODO(), req)
-		if err != nil {
-			return err
-		}
+			cii_resp, err := c.CreateInventoryItem(context.TODO(), req)
+			if err != nil {
+				return err
+			}
 
-		fmt.Printf("response from inventory: %v\n", cii_resp)
+			fmt.Printf("response from inventory: %v\n", cii_resp)
+		}
 
 		return nil
 

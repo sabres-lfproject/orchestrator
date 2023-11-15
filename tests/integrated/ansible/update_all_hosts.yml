@@ -1,0 +1,72 @@
+- hosts: all
+  tasks:
+    - name: disable apparmor
+      command: systemctl disable apparmor
+      become: yes
+
+    - name: stop apparmor
+      command: systemctl stop apparmor
+      become: yes
+
+    - name: install nfs-common
+      apt:
+        pkg: nfs-common
+        state: present
+      become: yes
+
+    - name: mount /tmp/orchestrator
+      mount:
+        name: /tmp/orchestrator
+        src: 172.22.1.1:/home/lthurlow/gocode/pulwar.isi.edu/sabres/orchestrator/
+        opts: rw,soft
+        fstype: nfs
+        state: mounted
+
+    - name: hold grub
+      dpkg_selections:
+        name: kubeadm
+        selection: hold
+      loop:
+        - grub-pc
+        - shim
+        - grub-efi-amd64-signed
+      become: yes
+
+    - name: hold with apt
+      shell: apt-mark hold {{ item }}
+      loop:
+        - grub-pc
+        - shim
+        - grub-efi-amd64-signed
+      become: yes
+
+    - name: upgrade all the packages
+      environment:
+        DEBIAN_FRONTEND: noninteractive
+      apt:
+        update_cache: yes
+        upgrade: yes
+        dpkg_options: force-confdef,force-confold
+      become: yes
+      ignore_errors: yes
+
+    - name: Task name
+      stat:
+        path: /opt/restarted
+      register: restarted
+
+    - name: reboot machine
+      reboot:
+      become: yes
+      when: not restarted.stat.exists
+
+    - name: mark node as rebooted
+      file:
+        state: touch
+        path: /opt/restarted
+      become: yes
+
+    - name: need to remount after reboot
+      shell: mount -a
+      become: yes
+

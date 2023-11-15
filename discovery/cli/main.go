@@ -39,7 +39,7 @@ func main() {
 	root.AddCommand(create)
 
 	createDEP := &cobra.Command{
-		Use:   "inv <file>",
+		Use:   "disc <file>",
 		Short: "Create an discovery endpoint through config file",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -55,7 +55,7 @@ func main() {
 	root.AddCommand(del)
 
 	delDEP := &cobra.Command{
-		Use:   "del inv <endpoint>",
+		Use:   "del disc <endpoint>",
 		Short: "Delete a discovery endpoint",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {

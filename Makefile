@@ -57,14 +57,14 @@ REPO ?= isilincoln
 TAG ?= latest
 #BUILD_ARGS ?= --no-cache
 
-docker: $(REGISTRY)/$(REPO)/orchestrator-inventory $(REGISTRY)/$(REPO)/orchestrator-discovery $(REGISTRY)/$(REPO)/orchestrator-mock-discovery $(REGISTRY)/$(REPO)/orchestrator-discovery-scanner
+docker: $(REGISTRY)/$(REPO)/orchestrator-inventory-api $(REGISTRY)/$(REPO)/orchestrator-discovery-api $(REGISTRY)/$(REPO)/orchestrator-mock-discovery $(REGISTRY)/$(REPO)/orchestrator-discovery-scanner
 
-$(REGISTRY)/$(REPO)/orchestrator-inventory:
-	@docker build ${BUILD_ARGS} $(DOCKER_QUIET) -f inventory/Dockerfile -t $(@):$(TAG) .
+$(REGISTRY)/$(REPO)/orchestrator-inventory-api:
+	@docker build ${BUILD_ARGS} $(DOCKER_QUIET) -f inventory/service/Dockerfile -t $(@):$(TAG) .
 	$(if ${PUSH},$(call docker-push))
 
-$(REGISTRY)/$(REPO)/orchestrator-discovery:
-	@docker build ${BUILD_ARGS} $(DOCKER_QUIET) -f discovery/Dockerfile -t $(@):$(TAG) .
+$(REGISTRY)/$(REPO)/orchestrator-discovery-api:
+	@docker build ${BUILD_ARGS} $(DOCKER_QUIET) -f discovery/service/Dockerfile -t $(@):$(TAG) .
 	$(if ${PUSH},$(call docker-push))
 
 $(REGISTRY)/$(REPO)/orchestrator-discovery-scanner:

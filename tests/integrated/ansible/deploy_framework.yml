@@ -1,0 +1,37 @@
+- hosts: [orchestrator]
+  tasks:
+    - name: update cache
+      apt:
+        update_cache: yes
+        pkg:
+          - wget
+          - curl
+      become: yes
+
+    - name: get helm install script
+      shell: curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+
+    - name: chmod helm install script
+      shell: chmod +x ./get_helm.sh
+
+    - name: run helm install script
+      shell: ./get_helm.sh
+
+    - name: make sure helm repo does not exist
+      shell: helm delete orchestrator
+      ignore_errors: yes
+
+    - name: remove k8 namespace
+      shell: kubectl delete namespace orch
+      ignore_errors: yes
+
+    - name: make sure helm repo exists
+      shell: helm package .
+      args:
+        chdir: /tmp/orchestrator/helm
+      become: yes
+
+    - name: deploy helm
+      shell: helm install --namespace orch --create-namespace orchestrator orchestrator-0.1.0.tgz
+      args:
+        chdir: /tmp/orchestrator/helm

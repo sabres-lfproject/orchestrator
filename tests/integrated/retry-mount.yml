@@ -1,0 +1,16 @@
+---                                                                                                      
+- hosts: all                                                                                             
+  become: yes
+  tasks: 
+    - name: install nfs-common
+      apt:
+        pkg: nfs-common
+        state: present
+      become: yes
+    - name: mount /tmp/orchestrator
+      mount:
+        name: /tmp/orchestrator
+        src: 172.22.1.1:/home/lthurlow/gocode/pulwar.isi.edu/sabres/orchestrator/
+        opts: rw,soft
+        fstype: nfs
+        state: mounted

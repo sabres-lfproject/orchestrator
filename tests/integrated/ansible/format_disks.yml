@@ -1,0 +1,53 @@
+# configure microk8s host to use the extra disks
+- hosts: [orchestrator]
+  tasks:
+    - name: partition extra disk
+      community.general.parted:
+        device: /dev/vdb
+        number: 1
+        state: present
+      become: yes
+
+    - name: setup extra disk as an ext4 filesystem
+      community.general.filesystem:
+        fstype: ext4
+        dev: /dev/vdb1
+      become: yes
+
+    - name: remove snapd
+      apt:
+        name: snapd
+        state: absent
+      become: yes
+
+    - name: unmount
+      ansible.posix.mount:
+        path: /var/snap
+        state: absent
+      become: yes
+      ignore_errors: yes
+
+    - name: remove all /var/snap data
+      ansible.builtin.file:
+        path: /var/snap
+        state: absent
+      become: yes
+
+    - name: Mount and bind a volume
+      ansible.posix.mount:
+        path: /var/snap
+        src: /dev/vdb1
+        opts: rw,noatime
+        state: mounted
+        fstype: ext4
+      become: yes
+
+    - name: update repos
+      command: apt update --fix-missing
+      become: yes
+
+    - name: reinstall snapd
+      apt:
+        name: snapd
+        state: present
+      become: yes

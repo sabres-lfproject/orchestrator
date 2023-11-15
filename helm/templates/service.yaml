@@ -7,8 +7,8 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: {{ .Values.orchestrator.inventory.port }}
-      targetPort: {{ .Values.orchestrator.inventory.ext.port }}
+    - port: {{ .Values.orchestrator.inventory.api.port }}
+      targetPort: {{ .Values.orchestrator.inventory.api.ext.port }}
       nodePort: 32500
       protocol: TCP
       name: orchestrator-inventory-external

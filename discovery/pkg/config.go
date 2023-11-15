@@ -9,27 +9,6 @@ import (
 	dobj "pulwar.isi.edu/sabres/orchestrator/discovery/protocol"
 )
 
-/*
-type Service struct {
-	Name string `json:"name,omitempty"`
-	Uuid string `json:"uuid,omitempty"`
-}
-
-type Authorization struct {
-	token       string `json:"token,omitempty"`
-	user        string `json:"user,omitempty"`
-	password    string `json:"password,omitempty"`
-	certificate string `json:"certificate,omitempty"`
-}
-
-type Endpoint struct {
-	Services Service       `json:"services,omitempty"`
-	Auth     Authorization `json:"auth,omitempty"`
-	URI      string        `json:"uri,omitempty"`
-	Version  int64         `json:"version,omitempty"`
-}
-*/
-
 type ServiceConfig struct {
 	Endpoints []*dobj.Endpoint `json:"endpoints,omitempty"`
 }

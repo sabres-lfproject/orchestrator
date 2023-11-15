@@ -15,17 +15,19 @@ spec:
         app: orchestrator
     spec:
       containers:
-      - name: inventory
-        image: {{.Values.orchestrator.inventory.image | quote}}
+      - name: inventory-api
+        image: {{.Values.orchestrator.inventory.api.image | quote}}
         ports:
-          - containerPort: {{.Values.orchestrator.inventory.port }}
+          - containerPort: {{.Values.orchestrator.inventory.api.port }}
         env:
           - name: ETCDHOST
             value: "localhost"
           - name: ETCDPORT
             value: {{.Values.etcd.port | quote}}
           - name: INVENTORYPORT
-            value: {{.Values.orchestrator.inventory.port | quote}}
+            value: {{.Values.orchestrator.inventory.api.port | quote}}
+          - name: DEBUG
+            value: {{.Values.orchestrator.inventory.api.debug | quote}}
         volumeMounts:
         - name: {{ .Release.Name }}-vol
           mountPath: /var/orchestrator/config.cfg
@@ -46,17 +48,41 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
-      - name: discovery
-        image: {{.Values.orchestrator.discovery.image | quote}}
+      - name: discovery-api
+        image: {{.Values.orchestrator.discovery.api.image | quote}}
         ports:
-          - containerPort: {{.Values.orchestrator.discovery.port }}
+          - containerPort: {{.Values.orchestrator.discovery.api.port }}
         env:
           - name: ETCDHOST
             value: "localhost"
           - name: ETCDPORT
             value: {{.Values.etcd.port | quote}}
           - name: DISCOVERYPORT
-            value: {{.Values.orchestrator.discovery.port | quote}}
+            value: {{.Values.orchestrator.discovery.api.port | quote}}
+          - name: DEBUG
+            value: {{.Values.orchestrator.discovery.api.debug | quote}}
+        volumeMounts:
+        - name: {{ .Release.Name }}-vol
+          mountPath: /var/orchestrator/config.cfg
+          subPath: config.cfg
+          readOnly: true
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      - name: discovery-scanner
+        image: {{.Values.orchestrator.discovery.scanner.image | quote}}
+        ports:
+          - containerPort: {{.Values.orchestrator.discovery.scanner.port }}
+        env:
+          - name: ETCDHOST
+            value: "localhost"
+          - name: ETCDPORT
+            value: {{.Values.etcd.port | quote}}
+          - name: DISCOVERYPORT
+            value: {{.Values.orchestrator.discovery.scanner.port | quote}}
+          - name: DEBUG
+            value: {{.Values.orchestrator.discovery.scanner.debug | quote}}
         volumeMounts:
         - name: {{ .Release.Name }}-vol
           mountPath: /var/orchestrator/config.cfg
@@ -77,6 +103,8 @@ spec:
             value: {{.Values.etcd.port | quote}}
           - name: MOCKDISCOVERYPORT
             value: {{.Values.orchestrator.mock.discovery.port | quote}}
+          - name: DEBUG
+            value: {{.Values.orchestrator.mock.discovery.debug | quote}}
         volumeMounts:
         - name: {{ .Release.Name }}-vol
           mountPath: /var/orchestrator/config.cfg

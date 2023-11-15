@@ -8,21 +8,30 @@ image:
 
 orchestrator:
   inventory:
-    port: 15005
-    ext:
+    api:
+      image: docker.io/isilincoln/orchestrator-inventory-api:latest
       port: 15005
-    image: docker.io/isilincoln/orchestrator-inventory:latest
+      ext:
+        port: 15005
+      debug: true
   discovery:
-    port: 15010
-    ext:
+    api:
       port: 15010
-    image: docker.io/isilincoln/orchestrator-discovery:latest
-  watcher:
-    image: docker.io/isilincoln/orchestrator-watcher:latest
+      ext:
+        port: 15010
+      image: docker.io/isilincoln/orchestrator-discovery-api:latest
+      debug: true
+    scanner:
+      port: 15020
+      ext:
+        port: 15020
+      image: docker.io/isilincoln/orchestrator-discovery-scanner:latest
+      debug: true
   mock:
     discovery:
       image: docker.io/isilincoln/orchestrator-mock-discovery:latest
       port: 15015
+      debug: true
 
 etcd:
   port: 2379
