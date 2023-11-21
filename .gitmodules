@@ -1,0 +1,3 @@
+[submodule "sabres/cbs"]
+	path = sabres/cbs
+	url = git@pulwar.isi.edu:sabres/cbs/cbs.git

@@ -6,11 +6,18 @@ LDFLAGS = "-X pulwar.isi.edu/sabres/orchestrator/pkg/common.Version=$(VERSION)"
 #all: docker
 all: clean code mock
 
-protobuf: protobuf-inventory
+protobuf: protobuf-inventory protobuf-discovery protobuf-networking
 
-code: build/iservice build/ictl build/dservice build/dscanner build/dctl
+code: inventory discovery networking
 
 mock: build/dmock
+
+inventory: build/iservice build/ictl
+
+discovery: build/dservice build/dscanner build/dctl
+
+networking: build/snet
+
 
 test:
 	go test -v ./...
@@ -33,6 +40,9 @@ build/dscanner: discovery/scanner/main.go | build protobuf-inventory protobuf-di
 build/dctl: discovery/cli/main.go | build protobuf-discovery
 	go build -ldflags=$(LDFLAGS) -o $@ $<
 
+build/snet: sabres/network/service/main.go | build protobuf-inventory protobuf-networking
+	go build -ldflags=$(LDFLAGS) -o $@ $<
+
 build:
 	mkdir -p build
 
@@ -48,6 +58,11 @@ protobuf-discovery:
 	protoc -I=discovery/protocol --go_out=discovery/protocol --go_opt=paths=source_relative \
 		--go-grpc_out=discovery/protocol --go-grpc_opt=paths=source_relative  \
 		 discovery/protocol/*.proto
+
+protobuf-networking:
+	protoc -I=sabres/network/protocol --go_out=sabres/network/protocol --go_opt=paths=source_relative \
+		--go-grpc_out=sabres/network/protocol --go-grpc_opt=paths=source_relative  \
+		 sabres/network/protocol/*.proto
 
 test:
 	go test -v ./...

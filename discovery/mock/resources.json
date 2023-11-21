@@ -1,6 +1,6 @@
 [
 {
-    "name": "dummy0",
+    "name": "dummy1",
     "uuid": "1",
     "notes": "mocked resource",
     "phy": {
@@ -19,6 +19,219 @@
         "aesni": true,
         "rdrand": true,
         "vmx": true
+    }
+},
+{
+    "name": "dummy2",
+    "uuid": "2",
+    "notes": "mocked resource",
+    "phy": {
+            "cores": 16,
+            "memory": 64,
+            "storage": 1024,
+            "network": 1000
+    },
+    "virt": {
+        "cores": 32
+    },
+    "flags": {
+        "simd128": true,
+        "simd256": true,
+        "simd512": false,
+        "aesni": true,
+        "rdrand": true,
+        "vmx": true
+    }
+},
+{
+    "name": "dummy3",
+    "uuid": "3",
+    "notes": "mocked resource",
+    "phy": {
+            "cores": 16,
+            "memory": 64,
+            "storage": 1024,
+            "network": 1000
+    },
+    "virt": {
+        "cores": 32
+    },
+    "flags": {
+        "simd128": true,
+        "simd256": true,
+        "simd512": false,
+        "aesni": true,
+        "rdrand": true,
+        "vmx": true
+    }
+},
+{
+    "name": "dummy4",
+    "uuid": "4",
+    "notes": "mocked resource",
+    "phy": {
+            "cores": 16,
+            "memory": 64,
+            "storage": 1024,
+            "network": 1000
+    },
+    "virt": {
+        "cores": 32
+    },
+    "flags": {
+        "simd128": true,
+        "simd256": true,
+        "simd512": false,
+        "aesni": true,
+        "rdrand": true,
+        "vmx": true
+    }
+},
+{
+    "name": "dummy5",
+    "uuid": "5",
+    "notes": "mocked resource",
+    "phy": {
+            "cores": 16,
+            "memory": 64,
+            "storage": 1024,
+            "network": 1000
+    },
+    "virt": {
+        "cores": 32
+    },
+    "flags": {
+        "simd128": true,
+        "simd256": true,
+        "simd512": false,
+        "aesni": true,
+        "rdrand": true,
+        "vmx": true
+    }
+},
+{
+    "name": "dummy-infranet-network",
+    "uuid": "10",
+    "notes": "mocked network resource",
+    "network": {
+        "overlay": true,
+        "adjlist": [
+            {
+                "uuid": "12",
+                "srcResource": "1",
+                "dstResource": "2",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "13",
+                "srcResource": "1",
+                "dstResource": "3",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "14",
+                "srcResource": "1",
+                "dstResource": "4",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "15",
+                "srcResource": "1",
+                "dstResource": "5",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "23",
+                "srcResource": "2",
+                "dstResource": "3",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "24",
+                "srcResource": "2",
+                "dstResource": "4",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "25",
+                "srcResource": "2",
+                "dstResource": "5",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "34",
+                "srcResource": "3",
+                "dstResource": "4",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "35",
+                "srcResource": "3",
+                "dstResource": "5",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "45",
+                "srcResource": "4",
+                "dstResource": "5",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            }
+        ]
+    }
+},
+{
+    "name": "dummy-network-1",
+    "uuid": "100",
+    "notes": "mocked network resource",
+    "network": {
+        "overlay": true,
+        "adjlist": [
+            {
+                "uuid": "120",
+                "srcResource": "1",
+                "dstResource": "2",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "130",
+                "srcResource": "1",
+                "dstResource": "3",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "230",
+                "srcResource": "2",
+                "dstResource": "3",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "240",
+                "srcResource": "2",
+                "dstResource": "4",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "350",
+                "srcResource": "3",
+                "dstResource": "5",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            }
+        ]
     }
 }
 ]

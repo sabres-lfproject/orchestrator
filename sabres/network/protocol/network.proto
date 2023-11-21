@@ -1,0 +1,61 @@
+syntax = 'proto3';
+
+option go_package = "pulwar.isi.edu/sabres/orchestrator/sabres/network/protocol";
+
+package protocol;
+
+service GraphManager {
+  rpc CreateGraph (CreateGraphRequest) returns (CRUDGraphResponse) {}
+  rpc DeleteGraph (DeleteGraphRequest) returns (CRUDGraphResponse) {}
+
+  rpc ShowGraph (ShowGraphRequest) returns (ShowGraphResponse) {}
+
+  rpc RequestSolution(SolveRequest) returns (SolveResponse) {}
+
+  rpc SetCBSLocation (SetCBSRequest) returns (SetCBSResponse) {}
+}
+
+// A constraint is made up of 3 items- an operator which defines
+// the function over the object by the left hand value.
+// An example would be:
+//
+// operator = <
+// lvalue = 5
+// object = latency
+//
+// With the result being to minimize latency such that any solution
+// has a result with a upper band of 4ms for latency.
+message Constraint {
+    string operator = 1; // <, >, =, <=, >=
+    string lvalue = 2; // the "value": 5ms, 1gbps, 8, 100 miles
+    string object = 3; // the "key": latency, bandwidth, cpu, distance
+    string locale = 4; // local or global
+    repeated string vertices = 5; // TODO: user constraints on known vertex
+    repeated string edges = 6; // TODO: user constriants on known edges
+}
+
+message SolveRequest {
+    Constraint constraint = 1;
+}
+
+message SolveResponse {
+    string response = 1;
+}
+
+message CRUDGraphResponse {
+    string uuid = 1;
+}
+
+message CreateGraphRequest {}
+message DeleteGraphRequest {}
+message ShowGraphRequest {}
+message ShowGraphResponse {
+    string dotviz = 1;
+}
+
+message SetCBSRequest{
+    string host = 1;
+    string port = 2;
+}
+
+message SetCBSResponse{}

@@ -15,18 +15,47 @@ service Inventory {
 }
 
 
+message Connection {
+    string uuid = 1; // this resource id
+    string srcResource = 2; // uuid
+    string dstResource = 3; // uuid
+
+    string srcAddr = 4; // network identifier
+    string dstAddr = 5; // network identifier
+
+    int64 bandwidth = 6; // network phy properties
+    int64 latency = 7; // network phy properties
+    int64 jitter = 8; // network phy properties
+
+    string linkType = 9; // single mode, multi-mode, ether, etc
+    int64 distance = 10; // in kms
+}
+
+message Network {
+     enum Link {
+        UNKNOWN = 0;
+        P2P = 1;
+        L2 = 2;
+        L3 = 3;
+        L5 = 4;
+    }
+
+    Link layer = 1;   
+    bool overlay = 2;
+    repeated Connection adjlist = 3;
+}
+
+
 message Physical {
     int64 cores = 1;
     int64 memory = 2;
     int64 storage = 3;
-    int64 network = 4;
 }
 
 message Virtual {
     int64 cores = 1;
     int64 memory = 2;
     int64 storage = 3;
-    int64 network = 4;
 }
 
 message Bios {
@@ -59,10 +88,11 @@ message ResourceItem {
     Physical phy = 3;
     Virtual virt = 4;
     Bios flags = 5;
-    Location locale = 6;
-    string notes = 7;
-    string parent = 8;
-    int64 version = 9;
+    Network network = 6;
+    Location locale = 7;
+    string notes = 8;
+    string parent = 9;
+    int64 version = 10;
 }
 
 
