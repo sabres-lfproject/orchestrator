@@ -22,6 +22,17 @@ NAME                            READY   STATUS    RESTARTS   AGE   IP           
 orchestrator-54c866c679-4qjbf   5/5     Running   0          32m   10.1.142.107   orchestrator   <none>           <none>
 ```
 
+Adding the values directly into etcd:
+```
+rvn@orchestrator:~$ sudo kubectl -n orch exec -it $POD -c mock-discovery /bin/bash 
+root@orchestrator-69b5987cd9-xh9qk:/# curl http://localhost:15015/mock
+```
+
+etcd command
+```
+ETCDCTL_API=3 etcdctl get --prefix ""
+```
+
 ## Modifying
 
 I either re-run `./setup_tests.sh` to tear down all the resources and rebuild from scratch, or I run:

@@ -261,7 +261,7 @@ func main() {
 	flag.IntVar(&port, "port", pkg.DefaultDiscoveryPort, "set the Discoveryd control port")
 	flag.BoolVar(&debug, "debug", false, "enable extra debug logging")
 
-	portStr := os.Getenv("MOAPORT")
+	portStr := os.Getenv("DISCOVERYPORT")
 	if portStr != "" {
 		portInt, err := strconv.Atoi(portStr)
 		if err != nil {

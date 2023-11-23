@@ -16,7 +16,7 @@ inventory: build/iservice build/ictl
 
 discovery: build/dservice build/dscanner build/dctl
 
-networking: build/snet
+networking: build/snet build/snctl
 
 
 test:
@@ -41,6 +41,9 @@ build/dctl: discovery/cli/main.go | build protobuf-discovery
 	go build -ldflags=$(LDFLAGS) -o $@ $<
 
 build/snet: sabres/network/service/main.go | build protobuf-inventory protobuf-networking
+	go build -ldflags=$(LDFLAGS) -o $@ $<
+
+build/snctl: sabres/network/cli/main.go | build protobuf-networking
 	go build -ldflags=$(LDFLAGS) -o $@ $<
 
 build:
@@ -72,7 +75,7 @@ REPO ?= isilincoln
 TAG ?= latest
 #BUILD_ARGS ?= --no-cache
 
-docker: $(REGISTRY)/$(REPO)/orchestrator-inventory-api $(REGISTRY)/$(REPO)/orchestrator-discovery-api $(REGISTRY)/$(REPO)/orchestrator-mock-discovery $(REGISTRY)/$(REPO)/orchestrator-discovery-scanner
+docker: $(REGISTRY)/$(REPO)/orchestrator-inventory-api $(REGISTRY)/$(REPO)/orchestrator-discovery-api $(REGISTRY)/$(REPO)/orchestrator-mock-discovery $(REGISTRY)/$(REPO)/orchestrator-discovery-scanner $(REGISTRY)/$(REPO)/orchestrator-sabres-network
 
 $(REGISTRY)/$(REPO)/orchestrator-inventory-api:
 	@docker build ${BUILD_ARGS} $(DOCKER_QUIET) -f inventory/service/Dockerfile -t $(@):$(TAG) .
@@ -88,6 +91,10 @@ $(REGISTRY)/$(REPO)/orchestrator-discovery-scanner:
 
 $(REGISTRY)/$(REPO)/orchestrator-mock-discovery:
 	@docker build ${BUILD_ARGS} $(DOCKER_QUIET) -f discovery/mock/Dockerfile -t $(@):$(TAG) .
+	$(if ${PUSH},$(call docker-push))
+
+$(REGISTRY)/$(REPO)/orchestrator-sabres-network:
+	@docker build ${BUILD_ARGS} $(DOCKER_QUIET) -f sabres/network/service/Dockerfile -t $(@):$(TAG) .
 	$(if ${PUSH},$(call docker-push))
 
 define docker-push

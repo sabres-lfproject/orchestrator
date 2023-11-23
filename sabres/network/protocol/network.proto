@@ -2,11 +2,11 @@ syntax = 'proto3';
 
 option go_package = "pulwar.isi.edu/sabres/orchestrator/sabres/network/protocol";
 
-package protocol;
+package netproto;
 
-service GraphManager {
-  rpc CreateGraph (CreateGraphRequest) returns (CRUDGraphResponse) {}
-  rpc DeleteGraph (DeleteGraphRequest) returns (CRUDGraphResponse) {}
+service Network {
+  rpc CreateGraph (CreateGraphRequest) returns (CreateGraphResponse) {}
+  rpc DeleteGraph (DeleteGraphRequest) returns (DeleteGraphResponse) {}
 
   rpc ShowGraph (ShowGraphRequest) returns (ShowGraphResponse) {}
 
@@ -42,15 +42,15 @@ message SolveResponse {
     string response = 1;
 }
 
-message CRUDGraphResponse {
-    string uuid = 1;
-}
-
+// TODO: maybe make all these google empty protobufs
 message CreateGraphRequest {}
+message CreateGraphResponse {}
 message DeleteGraphRequest {}
+message DeleteGraphResponse {}
 message ShowGraphRequest {}
 message ShowGraphResponse {
-    string dotviz = 1;
+    bool exists = 1;
+    string dotviz = 2;
 }
 
 message SetCBSRequest{

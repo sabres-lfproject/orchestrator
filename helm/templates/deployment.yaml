@@ -21,7 +21,7 @@ spec:
           - containerPort: {{.Values.orchestrator.inventory.api.port }}
         env:
           - name: ETCDHOST
-            value: "localhost"
+            value: {{.Values.etcd.host | quote}}
           - name: ETCDPORT
             value: {{.Values.etcd.port | quote}}
           - name: INVENTORYPORT
@@ -54,7 +54,7 @@ spec:
           - containerPort: {{.Values.orchestrator.discovery.api.port }}
         env:
           - name: ETCDHOST
-            value: "localhost"
+            value: {{.Values.etcd.host| quote}}
           - name: ETCDPORT
             value: {{.Values.etcd.port | quote}}
           - name: DISCOVERYPORT
@@ -76,7 +76,7 @@ spec:
           - containerPort: {{.Values.orchestrator.discovery.scanner.port }}
         env:
           - name: ETCDHOST
-            value: "localhost"
+            value: {{.Values.etcd.host | quote}}
           - name: ETCDPORT
             value: {{.Values.etcd.port | quote}}
           - name: DISCOVERYPORT
@@ -98,13 +98,33 @@ spec:
           - containerPort: {{.Values.orchestrator.mock.discovery.port }}
         env:
           - name: ETCDHOST
-            value: "localhost"
+            value: {{.Values.etcd.host | quote}}
           - name: ETCDPORT
             value: {{.Values.etcd.port | quote}}
           - name: MOCKDISCOVERYPORT
             value: {{.Values.orchestrator.mock.discovery.port | quote}}
           - name: DEBUG
             value: {{.Values.orchestrator.mock.discovery.debug | quote}}
+        volumeMounts:
+        - name: {{ .Release.Name }}-vol
+          mountPath: /var/orchestrator/config.cfg
+          subPath: config.cfg
+          readOnly: true
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      - name: network
+        image: {{.Values.orchestrator.sabres.network.image | quote}}
+        ports:
+          - containerPort: {{.Values.orchestrator.sabres.network.port }}
+        env:
+          - name: INVENTORYHOST
+            value: {{.Values.orchestrator.inventory.api.host | quote}}
+          - name: INVENTORYPORT 
+            value: {{.Values.orchestrator.inventory.api.port | quote}}
+          - name: DEBUG
+            value: {{.Values.orchestrator.sabres.network.debug | quote}}
         volumeMounts:
         - name: {{ .Release.Name }}-vol
           mountPath: /var/orchestrator/config.cfg

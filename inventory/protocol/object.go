@@ -24,6 +24,8 @@ func (x *InventoryItem) Key() string {
 
 func (x *InventoryItem) SetVersion(v int64) { x.Version = v }
 
+//func (x *InventoryItem) GetVersion() int64 { return x.Version }
+
 func (x *InventoryItem) Value() interface{} { return x }
 
 // ResourceItem definitions
@@ -37,5 +39,7 @@ func (x *ResourceItem) Key() string {
 }
 
 func (x *ResourceItem) SetVersion(v int64) { x.Version = v }
+
+//func (x *ResourceItem) GetVersion() int64 { return x.Version }
 
 func (x *ResourceItem) Value() interface{} { return x }

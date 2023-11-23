@@ -1,39 +1,49 @@
 Replicas: 1
 
-image:
-  repository: sabres/orchestrator
-  pullPolicy: Always
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: latest
-
 orchestrator:
   inventory:
     api:
       image: docker.io/isilincoln/orchestrator-inventory-api:latest
+      host: localhost
       port: 15005
       ext:
         port: 15005
       debug: true
   discovery:
     api:
+      host: localhost
       port: 15010
       ext:
         port: 15010
       image: docker.io/isilincoln/orchestrator-discovery-api:latest
       debug: true
     scanner:
+      host: localhost
       port: 15020
       ext:
         port: 15020
       image: docker.io/isilincoln/orchestrator-discovery-scanner:latest
       debug: true
+  sabres:
+    network:
+      host: localhost
+      port: 15025
+      image: docker.io/isilincoln/orchestrator-sabres-network:latest
+      debug: true
+    cbs:
+      host: localhost
+      port: 15030
+      image: docker.io/isilincoln/orchestrator-sabres-cbs:latest
+      debug: true
   mock:
     discovery:
       image: docker.io/isilincoln/orchestrator-mock-discovery:latest
+      host: localhost
       port: 15015
       debug: true
 
 etcd:
+  host: localhost
   port: 2379
   ext:
     port: 2379
