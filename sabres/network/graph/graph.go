@@ -70,7 +70,7 @@ func (g *Graph) AddEdge(v1, v2 *Vertex, prop map[string]string) (*Edge, error) {
 		return nil, err
 	}
 
-	found := g.FindVertex(v1)
+	found, _ := g.FindVertex(v1)
 	log.Debugf("adding vertex 1: %v\n", !found)
 	if !found {
 		// adding vertex
@@ -81,7 +81,7 @@ func (g *Graph) AddEdge(v1, v2 *Vertex, prop map[string]string) (*Edge, error) {
 		}
 	}
 
-	found = g.FindVertex(v2)
+	found, _ = g.FindVertex(v2)
 	log.Debugf("adding vertex 2: %v\n", !found)
 	if !found {
 		// adding vertex
@@ -121,16 +121,16 @@ func (g *Graph) AddEdgeObj(edge *Edge) error {
 	}
 }
 
-func (g *Graph) FindVertex(v *Vertex) bool {
+func (g *Graph) FindVertex(v *Vertex) (bool, *Vertex) {
 	for _, gv := range g.Vertices {
 		if gv.Name == v.Name {
 			// vertex found
-			return true
+			return true, gv
 		}
 	}
 
 	// vertex not found
-	return false
+	return false, nil
 }
 
 func (g *Graph) AddVertex(name, value string, prop map[string]string) (*Vertex, error) {
@@ -141,7 +141,7 @@ func (g *Graph) AddVertex(name, value string, prop map[string]string) (*Vertex, 
 	}
 
 	if g.Vertices != nil {
-		found := g.FindVertex(v)
+		found, _ := g.FindVertex(v)
 		if found {
 			return nil, ErrVertexAlreadyExists
 		}

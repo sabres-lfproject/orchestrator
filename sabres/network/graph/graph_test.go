@@ -28,13 +28,13 @@ func TestGraphAddEdge(t *testing.T) {
 		t.Errorf("Failed to add edge 1: %v\n", err)
 	}
 
-	found := G.FindVertex(v1)
+	found, _ := G.FindVertex(v1)
 	assert.True(t, found, "vertex 1 should have been added")
 
-	found = G.FindVertex(v2)
+	found, _ = G.FindVertex(v2)
 	assert.True(t, found, "vertex 2 should have been added")
 
-	found = G.FindVertex(v3)
+	found, _ = G.FindVertex(v3)
 	assert.False(t, found, "vertex 3 has not been added")
 
 	found = G.FindEdge(e1)
@@ -48,7 +48,7 @@ func TestGraphAddEdge(t *testing.T) {
 		t.Errorf("Failed to add edge 2: %v\n", err)
 	}
 
-	found = G.FindVertex(v3)
+	found, _ = G.FindVertex(v3)
 	assert.True(t, found, "vertex 3 should have been added")
 
 	found = G.FindEdge(e2)
@@ -79,7 +79,7 @@ func TestGraphAddVertices(t *testing.T) {
 		t.Errorf("Failed to add vertex 1: %v\n", err)
 	}
 
-	found := G.FindVertex(v1)
+	found, _ := G.FindVertex(v1)
 	assert.True(t, found, "vertex 1 should have been added")
 
 	err = G.AddVertexObj(v2)
@@ -87,7 +87,7 @@ func TestGraphAddVertices(t *testing.T) {
 		t.Errorf("Failed to add vertex 2: %v\n", err)
 	}
 
-	found = G.FindVertex(v2)
+	found, _ = G.FindVertex(v2)
 	assert.True(t, found, "vertex 2 should have been added")
 
 	err = G.AddVertexObj(v3)
@@ -95,7 +95,7 @@ func TestGraphAddVertices(t *testing.T) {
 		t.Errorf("Failed to add vertex 3: %v\n", err)
 	}
 
-	found = G.FindVertex(v3)
+	found, _ = G.FindVertex(v3)
 	assert.True(t, found, "vertex 3 should have been added")
 
 	_, err = G.AddEdge(v1, v2, nil)
