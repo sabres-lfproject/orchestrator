@@ -134,6 +134,22 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
+      - name: cbs
+        image: {{.Values.orchestrator.sabres.cbs.image | quote}}
+        ports:
+          - containerPort: {{.Values.orchestrator.sabres.cbs.port }}
+        env:
+          - name: DEBUG
+            value: {{.Values.orchestrator.sabres.cbs.debug | quote}}
+        volumeMounts:
+        - name: {{ .Release.Name }}-vol
+          mountPath: /var/orchestrator/config.cfg
+          subPath: config.cfg
+          readOnly: true
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
       volumes:
         - name: {{ .Release.Name }}-vol
           configMap:

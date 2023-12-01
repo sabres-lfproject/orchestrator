@@ -24,26 +24,27 @@ var (
 )
 
 type Vertex struct {
-	Name       string
-	Value      string
-	Properties map[string]string
-	Weight     int
+	Name       string            `yaml:"name" json:"name" binding:"required"`
+	Value      string            `yaml:"value" json:"value"`
+	Properties map[string]string `yaml:"properties" json:"properties"`
+	Weight     int               `yaml:"weight" json:"weight"`
 }
 
 type Edge struct {
-	Name       string
-	Vertices   []*Vertex
-	Properties map[string]string
-	Weight     int
+	Name       string            `yaml:"name" json:"name" binding:"required"`
+	Vertices   []*Vertex         `yaml:"vertices" json:"vertices" binding:"required"`
+	Properties map[string]string `yaml:"properties" json:"properties"`
+	Weight     int               `yaml:"weight" json:"weight"`
 }
 
 type Graph struct {
-	Name     string
-	Vertices []*Vertex
-	Edges    []*Edge
+	Name     string    `yaml:"name" json:"name" binding:"required"`
+	Vertices []*Vertex `yaml:"vertices" json:"vertices"`
+	Edges    []*Edge   `yaml:"edges" json:"edges"`
 }
 
-func (g *Graph) FindEdge(e *Edge) bool {
+func (g *Graph) FindEdge(e *Edge) ([]*Edge, bool) {
+	eList := make([]*Edge, 0)
 	for _, ge := range g.Edges {
 		m1 := make(map[string]string)
 		for _, v1 := range e.Vertices {
@@ -56,12 +57,16 @@ func (g *Graph) FindEdge(e *Edge) bool {
 
 		// check if edge by name already exists
 		if reflect.DeepEqual(m1, m2) {
-			return true
+			eList = append(eList, ge)
 		}
 	}
 
+	if len(eList) > 0 {
+		return eList, true
+	}
+
 	// edge not found
-	return false
+	return nil, false
 }
 
 func (g *Graph) AddEdge(v1, v2 *Vertex, prop map[string]string) (*Edge, error) {
@@ -71,8 +76,8 @@ func (g *Graph) AddEdge(v1, v2 *Vertex, prop map[string]string) (*Edge, error) {
 	}
 
 	found, _ := g.FindVertex(v1)
-	log.Debugf("adding vertex 1: %v\n", !found)
 	if !found {
+		log.Debugf("adding vertex 1: %v\n", !found)
 		// adding vertex
 		err = g.AddVertexObj(v1)
 		// should not return error because we already checked it didnt exist
@@ -82,8 +87,8 @@ func (g *Graph) AddEdge(v1, v2 *Vertex, prop map[string]string) (*Edge, error) {
 	}
 
 	found, _ = g.FindVertex(v2)
-	log.Debugf("adding vertex 2: %v\n", !found)
 	if !found {
+		log.Debugf("adding vertex 2: %v\n", !found)
 		// adding vertex
 		err = g.AddVertexObj(v2)
 		// should not return error because we already checked it didnt exist
@@ -93,9 +98,26 @@ func (g *Graph) AddEdge(v1, v2 *Vertex, prop map[string]string) (*Edge, error) {
 	}
 
 	if g.Edges != nil {
-		found = g.FindEdge(e)
-		if found {
+		eList, found := g.FindEdge(e)
+		uuid, ok := prop["uuid"]
+		if !ok && found {
 			return nil, ErrEdgeAlreadyExists
+		}
+		if found {
+			for _, ee := range eList {
+				if ee.Properties != nil {
+					propUuid, ok := ee.Properties["uuid"]
+					if ok {
+						if propUuid == uuid {
+							return nil, ErrEdgeAlreadyExists
+						} else {
+							log.Debugf("edge with same vertices, found, different network. adding: %v\n", e)
+						}
+					}
+				}
+			}
+		} else {
+			log.Debugf("adding edge: %v\n", e)
 		}
 	} else {
 		g.Edges = make([]*Edge, 0)
@@ -207,7 +229,12 @@ func (g *Graph) DotViz() (string, error) {
 
 	log.Debugf("vertices: %#v\n", m)
 
+	labelMap := make(map[string]string)
+	edgeMap := make(map[string]*cgraph.Edge)
 	for _, e := range g.Edges {
+		for i, v := range e.Vertices {
+			log.Debugf("vert %d: %s", i, v.Name)
+		}
 		if e.Vertices != nil {
 			if len(e.Vertices) == 2 {
 				v1, ok := m[e.Vertices[0].Name]
@@ -223,10 +250,43 @@ func (g *Graph) DotViz() (string, error) {
 				if err != nil {
 					return "", err
 				}
-				etemp.SetLabel(e.Name)
+				edgeMap[e.Name] = etemp
+
+				bw, ok := e.Properties["bw"]
+				netuid, ok2 := e.Properties["uuid"]
+
+				if ok && ok2 {
+					label := fmt.Sprintf("network: %s | bandwidth: %d", netuid, bw)
+					val, ok := labelMap[e.Name]
+					if !ok {
+						labelMap[e.Name] = label
+					} else {
+						label = fmt.Sprintf("%s || network: %s | bandwidth: %d", val, netuid, bw)
+						labelMap[e.Name] = label
+					}
+					//etemp.SetLabel(label)
+				} else {
+					val, ok := labelMap[e.Name]
+					if !ok {
+						//etemp.SetLabel(e.Name)
+						labelMap[e.Name] = e.Name
+					} else {
+						if val != e.Name {
+							label := fmt.Sprintf("%s || %s ", val, e.Name)
+							labelMap[e.Name] = label
+						}
+					}
+				}
+
 			}
 		}
+	}
 
+	for name, edge := range edgeMap {
+		val, ok := labelMap[name]
+		if ok {
+			edge.SetLabel(val)
+		}
 	}
 
 	var buf bytes.Buffer

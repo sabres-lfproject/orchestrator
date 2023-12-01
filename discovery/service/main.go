@@ -75,7 +75,10 @@ func (s *DiscoveryServer) CreateDEP(ctx context.Context, req *proto.CreateDEPReq
 	}
 
 	ep := req.Endpoint
-	ep.Services.Uuid = uuid.New().String()
+	err = checkUuid(ep.Services.Uuid)
+	if err != nil {
+		ep.Services.Uuid = uuid.New().String()
+	}
 
 	log.WithFields(log.Fields{
 		"Name":     ep.Services.Name,

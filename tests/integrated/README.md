@@ -31,6 +31,7 @@ root@orchestrator-69b5987cd9-xh9qk:/# curl http://localhost:15015/mock
 etcd command
 ```
 ETCDCTL_API=3 etcdctl get --prefix ""
+ETCDCTL_API=3 etcdctl get --keys-only --prefix ""
 ```
 
 ## Modifying
@@ -67,6 +68,8 @@ The discovery-scanner uses the endpoints managed by the api and stored in etcd t
 
 For now, to do a simple test.  All the pods come up, there isnt anything happening.
 
+## Add data to discovery service
+
 So first we need to add an endpoint for the discovery scanner to find:
 
 ```
@@ -79,3 +82,29 @@ root@orchestrator-54c866c679-57k2b:/# dctl create disc /data/discovery/pkg/test_
 The file being added is mounted from in the pod, and is a test file that specifies a mocked host (which if mock-discovery is running - is the same endpoint).
 
 This will cause the scanner which is constantly scanning the database to see a new endpoint and scan it.  To which it find the `/resource` endpoint which has a resourceItem attached to it.  From here the scanner checks if the item is already in the inventory, if it is, it does nothing with it, if the data has changed it updates inventory.
+
+## Create a network map from scanned resources
+
+```
+POD=$(sudo kubectl -n orch get pods | grep orchestrator | cut -d " " -f 1)
+rvn@orchestrator:~$ POD=$(sudo kubectl -n orch get pods | grep orchestrator | cut -d " " -f 1)
+rvn@orchestrator:~$ sudo kubectl -n orch exec $POD -c network -- /usr/bin/snctl create
+sent request
+rvn@orchestrator:~$ sudo kubectl -n orch exec $POD -c network -- /usr/bin/snctl show
+digraph "" {
+....
+}
+```
+
+
+## Sending CBS request
+
+standalone method:
+```
+curl -X POST -H "Content-Type: application/json" -d @./pkg/mockcbs.request http://localhost:15030/cbs | jq .
+```
+
+integrated method:
+
+```
+```

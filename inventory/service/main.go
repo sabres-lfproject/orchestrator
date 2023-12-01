@@ -77,10 +77,17 @@ func (s *InventoryServer) CreateInventoryItem(ctx context.Context, req *inv.Crea
 		return nil, err
 	}
 
+	// for now - with mocked data, especially resources, let the uuid be
+	// passed in, otherwise we need a mechanism to later attribute names
+	// to uuids due to adding edges or other referencial resources
 	io = req.Request
-	io.Uuid = uuid.New().String()
+	if err = checkUuid(io.Uuid); err != nil {
+		io.Uuid = uuid.New().String()
+	}
 	ro = req.Request.Resource
-	ro.Uuid = uuid.New().String()
+	if err = checkUuid(ro.Uuid); err != nil {
+		ro.Uuid = uuid.New().String()
+	}
 	ro.Parent = io.Uuid
 	io.Resource = ro
 

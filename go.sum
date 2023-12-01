@@ -378,5 +378,7 @@ gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
 gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
+pulwar.isi.edu/sabres/cbs/cbs/service v0.0.0-20231201043032-10cd5ca52570 h1:SdmrXvQYU7jR8+RiNC9TZqh+/6UKcepmO5Q2ZJ7Mpk0=
+pulwar.isi.edu/sabres/cbs/cbs/service v0.0.0-20231201043032-10cd5ca52570/go.mod h1:lzdrA7W/cvjuP5oYPCMCSn33UBqJSJ3kNvMrKiNLwMg=
 rsc.io/pdf v0.1.1/go.mod h1:n8OzWcQ6Sp37PL01nO98y4iUCRdTGarVfzxY20ICaU4=
 sigs.k8s.io/yaml v1.2.0/go.mod h1:yfXDCHCao9+ENCvLSE62v9VSji2MKu5jeNfTrofGhJc=

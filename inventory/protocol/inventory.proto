@@ -43,6 +43,7 @@ message Network {
     Link layer = 1;   
     bool overlay = 2;
     repeated Connection adjlist = 3;
+    string name = 4;
 }
 
 

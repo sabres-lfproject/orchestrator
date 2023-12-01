@@ -35,7 +35,7 @@ message Constraint {
 }
 
 message SolveRequest {
-    Constraint constraint = 1;
+    repeated Constraint constraints = 1;
 }
 
 message SolveResponse {

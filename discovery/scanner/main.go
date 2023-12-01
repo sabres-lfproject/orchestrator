@@ -8,11 +8,9 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"reflect"
 	"strconv"
 	"time"
 
-	"github.com/fatih/structs"
 	log "github.com/sirupsen/logrus"
 	"gitlab.com/mergetb/tech/stor"
 	clientv3 "go.etcd.io/etcd/client/v3"
@@ -206,61 +204,70 @@ func scanEndpoint(ep *proto.Endpoint) error {
 			return nil
 		}
 
-		resourceList := make([]*inventory.ResourceItem, 0)
+		resourceList := make([]inventory.ResourceItem, 0)
 
 		// for inventory items, check each resource item (bad)
 		for _, rec := range recList {
 
 			recFound := false
 
+			log.Debugf("resource: %#v\n", rec)
+
 			for _, io := range resp.Items {
 				if io.Resource == nil {
 					continue
 				}
 
-				// convert to map
-				ir := structs.Map(io.Resource)
-				or := structs.Map(rec)
+				/*
+					// TODO: right now we are going to assume that uuids
+					// are assigned and managed out of band
 
-				// strip out uuids
-				delete(ir, "Uuid")
-				delete(ir, "Parent")
-				delete(or, "Uuid")
-				delete(or, "Parent")
+					// convert to map
+					//ir := structs.Map(io.Resource)
+					//or := structs.Map(rec)
 
-				log.Debugf("ir: %#v\n", ir)
-				log.Debugf("or: %#v\n", or)
+					delete(ir, "Uuid")
+					delete(ir, "Parent")
+					delete(or, "Uuid")
+					delete(or, "Parent")
+				*/
 
-				eq := reflect.DeepEqual(ir, or)
-				if eq {
-					log.Infof("Resources already in inventory\n")
+				log.Debugf("ir: %#v\n", io.Resource)
+				log.Debugf("or: %#v\n", rec)
+
+				if io.Resource.Uuid == rec.Uuid {
+					log.Debugf("Resource already in inventory\n")
 					recFound = true
 					break
 				}
 			}
 
 			if !recFound {
-				resourceList = append(resourceList, &rec)
+				log.Infof("Resource not found in inventory, requesting add\n")
+				resourceList = append(resourceList, rec)
 			}
 		}
 
 		for _, rec := range resourceList {
-			log.Infof("Resource(s) not found in inventory, requesting add\n")
+
+			log.Debugf("Sending create request for: %v\n", rec)
 			// add new inventory item
 			req := &inventory.CreateInventoryItemRequest{
 				Request: &inventory.InventoryItem{
-					Resource: rec,
+					Uuid:     rec.Uuid, // TODO: assumes resource has a uuid
+					Resource: &rec,
 					Entity: &inventory.Entity{
 						Idtype: inventory.Entity_IP,
 					},
 					Notes: fmt.Sprintf("scanned by: %v", ep),
 				},
 			}
-			fmt.Printf("sent request to inventory: %v\n", req)
+			//fmt.Printf("sent request to inventory: %v\n", req)
 
 			cii_resp, err := c.CreateInventoryItem(context.TODO(), req)
 			if err != nil {
-				return err
+				log.Errorf("Failed to add inventory item: %s\n", rec.Uuid)
+				continue
 			}
 
 			fmt.Printf("response from inventory: %v\n", cii_resp)

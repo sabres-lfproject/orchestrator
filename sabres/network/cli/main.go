@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -126,6 +129,16 @@ func showConfigFunc() {
 
 		fmt.Printf("Graph: %+v\n", resp)
 
+		fi, err := os.Create("graph.dot")
+		if err != nil {
+			return err
+		}
+
+		_, err = fi.Write([]byte(resp.Dotviz))
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 }
@@ -149,10 +162,24 @@ func setHostFunc(host, port string) {
 
 func solveFunc(fi string) {
 
+	data, err := ioutil.ReadFile(fi)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cons := make([]*protocol.Constraint, 0)
+
+	err = json.Unmarshal(data, &cons)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	//TODO: read constraints from file
 	pkg.WithNetwork(addr, func(c protocol.NetworkClient) error {
 		// TODO: add constraints here
-		resp, err := c.RequestSolution(context.TODO(), &protocol.SolveRequest{})
+		resp, err := c.RequestSolution(context.TODO(), &protocol.SolveRequest{
+			Constraints: cons,
+		})
 
 		if err != nil {
 			log.Fatal(err)

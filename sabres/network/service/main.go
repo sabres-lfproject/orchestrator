@@ -1,16 +1,21 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"net"
+	"net/http"
 	"os"
 	"strconv"
 	"sync"
 
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	cbs "pulwar.isi.edu/sabres/cbs/cbs/service/pkg"
 	ipkg "pulwar.isi.edu/sabres/orchestrator/inventory/pkg"
 	inventory "pulwar.isi.edu/sabres/orchestrator/inventory/protocol"
 	"pulwar.isi.edu/sabres/orchestrator/sabres/network/graph"
@@ -95,7 +100,7 @@ func createInventoryGraph() (*graph.Graph, error) {
 					dst := link.DstResource
 
 					// check if src, dst are in the graph
-					found := G.FindVertex(&graph.Vertex{Name: src})
+					found, _ := G.FindVertex(&graph.Vertex{Name: src})
 					if !found {
 						// Look for inventory for node
 						respSrc, err := c.GetResourceItem(context.TODO(),
@@ -121,7 +126,7 @@ func createInventoryGraph() (*graph.Graph, error) {
 					}
 
 					// check if src, dst are in the graph
-					found = G.FindVertex(&graph.Vertex{Name: dst})
+					found, _ = G.FindVertex(&graph.Vertex{Name: dst})
 					if !found {
 						// Look for inventory for node
 						respSrc, err := c.GetResourceItem(context.TODO(),
@@ -150,9 +155,11 @@ func createInventoryGraph() (*graph.Graph, error) {
 
 					ma := make(map[string]string)
 
-					ma["bw"] = string(link.Bandwidth)
-					ma["lat"] = string(link.Latency)
-					ma["jit"] = string(link.Jitter)
+					ma["bw"] = fmt.Sprintf("%s", link.Bandwidth)
+					ma["lat"] = fmt.Sprintf("%s", link.Latency)
+					ma["jit"] = fmt.Sprintf("%s", link.Jitter)
+					ma["uuid"] = link.Uuid
+					ma["name"] = net.Name
 
 					srcV := &graph.Vertex{Name: src}
 					dstV := &graph.Vertex{Name: dst}
@@ -245,14 +252,60 @@ func (s *NetworkServer) RequestSolution(ctx context.Context, req *proto.SolveReq
 		return nil, fmt.Errorf("%s", errMsg)
 	}
 
+	if req.Constraints == nil {
+		return nil, fmt.Errorf("constraints not given")
+	}
+
+	if len(req.Constraints) == 0 {
+		return nil, fmt.Errorf("constraints not found")
+	}
+
 	mutex.Lock()
 	defer mutex.Unlock()
+
+	if CBSHost == "" {
+		return nil, fmt.Errorf("CBSHost has not been set yet, use SetCBSLocation first")
+	}
 
 	if GlobalGraph == nil {
 		return nil, fmt.Errorf("graph not found, must be created first.")
 	}
 
+	c := &cbs.CBSRequest{}
+	c.Constraints = req.Constraints
+	c.Graph = GlobalGraph
+
+	// take constraints, create json
+	cons, err := json.Marshal(c)
+	if err != nil {
+		log.Errorf("erro marshaling: %v\n", err)
+		return nil, err
+	}
+
+	//POST request to CBSHost
+	endpoint := fmt.Sprintf("http://%s/cbs", CBSHost)
+	request, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(cons))
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
+
+	httpClient := &http.Client{}
+	resp, err := httpClient.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	log.Infof("resp from cbs: %v\n", body)
+
 	// reach out to cbs for it to its thing
+
+	// TODO: Reservation system
 
 	return &proto.SolveResponse{}, nil
 }
