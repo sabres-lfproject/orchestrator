@@ -2,6 +2,7 @@ package graph
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -41,6 +42,32 @@ type Graph struct {
 	Name     string    `yaml:"name" json:"name" binding:"required"`
 	Vertices []*Vertex `yaml:"vertices" json:"vertices"`
 	Edges    []*Edge   `yaml:"edges" json:"edges"`
+}
+
+func (g *Graph) PrintGraph() {
+	fmt.Printf("Graph: %s\n", g.Name)
+	if len(g.Vertices) <= 0 {
+		fmt.Printf("is empty\n")
+		return
+	} else {
+		fmt.Printf("Vertices:\n")
+		for _, v := range g.Vertices {
+			fmt.Printf("\t%s: [%#v]\n", v.Name, v.Properties)
+		}
+	}
+
+	if len(g.Edges) > 0 {
+		fmt.Printf("Edges:\n")
+		for _, e := range g.Edges {
+			if len(e.Vertices) <= 1 {
+				continue
+			}
+
+			fmt.Printf("\t%s->%s: [%#v]\n", e.Vertices[0].Name, e.Vertices[1].Name, e.Properties)
+		}
+	} else {
+		fmt.Printf("No Edges.\n")
+	}
 }
 
 func (g *Graph) FindEdge(e *Edge) ([]*Edge, bool) {
@@ -256,12 +283,12 @@ func (g *Graph) DotViz() (string, error) {
 				netuid, ok2 := e.Properties["uuid"]
 
 				if ok && ok2 {
-					label := fmt.Sprintf("network: %s | bandwidth: %d", netuid, bw)
+					label := fmt.Sprintf("network: %s | bandwidth: %s", netuid, bw)
 					val, ok := labelMap[e.Name]
 					if !ok {
 						labelMap[e.Name] = label
 					} else {
-						label = fmt.Sprintf("%s || network: %s | bandwidth: %d", val, netuid, bw)
+						label = fmt.Sprintf("%s || network: %s | bandwidth: %s", val, netuid, bw)
 						labelMap[e.Name] = label
 					}
 					//etemp.SetLabel(label)
@@ -295,4 +322,104 @@ func (g *Graph) DotViz() (string, error) {
 	}
 
 	return buf.String(), nil
+}
+
+// DeepCopy function
+func (g *Graph) DeepCopy() (*Graph, error) {
+	gJson, err := json.Marshal(g)
+	if err != nil {
+		return nil, err
+	}
+
+	ng := Graph{}
+	err = json.Unmarshal(gJson, &ng)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ng, nil
+}
+
+// DeleteEdge function only to be used for cbs which will use
+// a property value to differentiate edges
+func (g *Graph) DeleteEdge(e *Edge) error {
+	if g == nil {
+		return fmt.Errorf("delete edge called on nil graph")
+	}
+
+	if g.Edges == nil {
+		return fmt.Errorf("delete edge called on graph with nil edges")
+	}
+
+	if len(g.Edges) == 0 {
+		return fmt.Errorf("delete edge called on graph without edges")
+	}
+
+	geList := g.Edges
+	for i, ge := range geList {
+		if ge.Name == e.Name && reflect.DeepEqual(ge.Properties, e.Properties) {
+			g.Edges = append(geList[:i], geList[i+1:]...)
+			log.Debugf("Deleted edge: %v from graph\n", e)
+			return nil
+		}
+	}
+
+	log.Debugf("Edge not found in graph: %v\n", e)
+
+	return nil
+}
+
+// TODO: this is a function only for pruning edges based on a selector
+func PruneGraph(g *Graph, sel string) (*Graph, error) {
+	if sel == "" {
+		log.Warnf("Prune called without selector value")
+		return g, nil
+	}
+
+	if g == nil {
+		return nil, fmt.Errorf("Prune called with nil graph")
+	}
+
+	if len(g.Edges) == 0 {
+		log.Warnf("Prune called with graph with no edges")
+		return g, nil
+	}
+
+	log.Infof("prune called with selector: %s\n", sel)
+
+	newGraph, err := g.DeepCopy()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, e := range newGraph.Edges {
+		if e.Properties != nil {
+			log.Infof("Prune, edge: %s [%s] ? %s", e.Name, e.Properties["selector"], sel)
+			val, ok := e.Properties["selector"]
+			log.Infof("val: %s ok: [%v]", val, ok)
+			if ok {
+				if val != sel {
+					log.Infof("Deleting Edge- not selected: %v\n", e)
+					err = newGraph.DeleteEdge(e)
+					if err != nil {
+						return nil, err
+					}
+				}
+			} else {
+				log.Infof("Deleting Edge- no selector: %v\n", e)
+				err = newGraph.DeleteEdge(e)
+				if err != nil {
+					return nil, err
+				}
+			}
+		} else {
+			log.Infof("Deleting Edge- no properties to select: %v\n", e)
+			err = newGraph.DeleteEdge(e)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return newGraph, nil
 }

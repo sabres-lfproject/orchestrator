@@ -32,6 +32,7 @@ message Constraint {
     string locale = 4; // local or global
     repeated string vertices = 5; // TODO: user constraints on known vertex
     repeated string edges = 6; // TODO: user constriants on known edges
+    string selector = 7; // select across multiple objects (e.g., networks)
 }
 
 message SolveRequest {

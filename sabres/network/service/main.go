@@ -37,14 +37,14 @@ var (
 func addVertex(G *graph.Graph, io *inventory.ResourceItem) error {
 	ma := make(map[string]string)
 	if io.Phy != nil {
-		ma["cpu"] = string(io.Phy.Cores)
-		ma["mem"] = string(io.Phy.Memory)
-		ma["disk"] = string(io.Phy.Storage)
+		ma["cpu"] = fmt.Sprintf("%d", io.Phy.Cores)
+		ma["mem"] = fmt.Sprintf("%d", io.Phy.Memory)
+		ma["disk"] = fmt.Sprintf("%d", io.Phy.Storage)
 	} else {
 		if io.Virt != nil {
-			ma["cpu"] = string(io.Virt.Cores)
-			ma["mem"] = string(io.Virt.Memory)
-			ma["disk"] = string(io.Virt.Storage)
+			ma["cpu"] = fmt.Sprintf("%d", io.Virt.Cores)
+			ma["mem"] = fmt.Sprintf("%d", io.Virt.Memory)
+			ma["disk"] = fmt.Sprintf("%d", io.Virt.Storage)
 		}
 	}
 
@@ -87,12 +87,15 @@ func createInventoryGraph() (*graph.Graph, error) {
 
 			// check what type of resource, is it network, node, both?
 
-			err = addVertex(G, io.Resource)
-			if err != nil {
-				continue
+			// if it is not a network, add it a vertex in the graph
+			if io.Resource.Network == nil {
+				err = addVertex(G, io.Resource)
+				if err != nil {
+					continue
+				}
 			}
 
-			// add vertices
+			// if it is a network, add the edges, and potentially the vertices of the edges.
 			net := io.Resource.Network
 			if net != nil {
 				for _, link := range net.Adjlist {
@@ -160,6 +163,7 @@ func createInventoryGraph() (*graph.Graph, error) {
 					ma["jit"] = fmt.Sprintf("%s", link.Jitter)
 					ma["uuid"] = link.Uuid
 					ma["name"] = net.Name
+					ma["selector"] = io.Resource.Parent
 
 					srcV := &graph.Vertex{Name: src}
 					dstV := &graph.Vertex{Name: dst}
@@ -273,7 +277,34 @@ func (s *NetworkServer) RequestSolution(ctx context.Context, req *proto.SolveReq
 
 	c := &cbs.CBSRequest{}
 	c.Constraints = req.Constraints
-	c.Graph = GlobalGraph
+
+	// TODO: selector only to be used on edges
+	// todo is to manage that for later on with more variables
+	// that work on nodes,  And there can only be one selector
+	selector := ""
+	for _, c := range req.Constraints {
+		if c.Selector != "" {
+			if selector != "" && c.Selector != selector {
+				return nil, fmt.Errorf("Too many edge selectors given: %s, %s. Can only use 1", selector, c.Selector)
+			}
+			selector = c.Selector
+		}
+	}
+
+	log.Infof("selector for solving: %s\n", selector)
+
+	log.Infof("global graph:\n")
+	GlobalGraph.PrintGraph()
+
+	if selector != "" {
+		g, err := graph.PruneGraph(GlobalGraph, selector)
+		if err != nil {
+			return nil, err
+		}
+		c.Graph = g
+	} else {
+		c.Graph = GlobalGraph
+	}
 
 	// take constraints, create json
 	cons, err := json.Marshal(c)
@@ -281,6 +312,8 @@ func (s *NetworkServer) RequestSolution(ctx context.Context, req *proto.SolveReq
 		log.Errorf("erro marshaling: %v\n", err)
 		return nil, err
 	}
+
+	log.Infof("Request to send to CBS: %s\n", cons)
 
 	//POST request to CBSHost
 	endpoint := fmt.Sprintf("http://%s/cbs", CBSHost)
@@ -301,13 +334,13 @@ func (s *NetworkServer) RequestSolution(ctx context.Context, req *proto.SolveReq
 	if err != nil {
 		return nil, err
 	}
-	log.Infof("resp from cbs: %v\n", body)
+	log.Infof("resp from cbs: %s\n", string(body))
 
 	// reach out to cbs for it to its thing
 
 	// TODO: Reservation system
 
-	return &proto.SolveResponse{}, nil
+	return &proto.SolveResponse{Response: string(body)}, nil
 }
 
 func (s *NetworkServer) SetCBSLocation(ctx context.Context, req *proto.SetCBSRequest) (*proto.SetCBSResponse, error) {

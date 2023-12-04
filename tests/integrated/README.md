@@ -10,7 +10,29 @@
 ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i .rvn/ansible-hosts retry-mount.yml
 
 sudo rvn configure
+```
 
+
+## Building pod
+
+start with getting dependencies
+```
+git submodule update --init --recursive
+```
+
+then build everything
+```
+sudo PUSH=1 make docker
+```
+
+next we need to build the cbs container in the submodule
+```
+pushd sabres/cbs; ./build_container.sh; popd
+```
+
+## Running the environment
+
+```
 ./setup_tests.sh
 ```
 
@@ -94,6 +116,8 @@ rvn@orchestrator:~$ sudo kubectl -n orch exec $POD -c network -- /usr/bin/snctl 
 digraph "" {
 ....
 }
+rvn@orchestrator:~$ sudo kubectl -n orch exec $POD -c network -- /usr/bin/snctl set localhost 15030                                                                         
+rvn@orchestrator:~$ sudo kubectl -n orch exec $POD -c network -- /usr/bin/snctl solve /data/sabres/cbs/service/pkg/integrated.request 
 ```
 
 
