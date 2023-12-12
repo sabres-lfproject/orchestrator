@@ -1,0 +1,21 @@
+{
+  "connectivity-service": "5g",
+  "default-behavior": "ALLOW-ALL",
+  "device-group": [
+    {
+      "device-group": "device-group-2",
+      "enable": true
+    }
+  ],
+  "display-name": "Sabres Slice",
+  "filter": [],
+  "mbr": {
+    "downlink": 5000000,
+    "uplink": 10000000
+  },
+  "priority-traffic-rule": [],
+  "sd": "010203",
+  "slice-id": "slice-2",
+  "sst": "1",
+  "upf": "upf-1"
+}

@@ -355,16 +355,32 @@ func (g *Graph) DeleteEdge(e *Edge) error {
 		return fmt.Errorf("delete edge called on graph without edges")
 	}
 
-	geList := g.Edges
-	for i, ge := range geList {
-		if ge.Name == e.Name && reflect.DeepEqual(ge.Properties, e.Properties) {
-			g.Edges = append(geList[:i], geList[i+1:]...)
-			log.Debugf("Deleted edge: %v from graph\n", e)
-			return nil
+	eList := make([]*Edge, 0)
+	for _, ge := range g.Edges {
+		//log.Debugf("edge: %v\n", ge)
+		if ge.Name != e.Name {
+			eList = append(eList, ge)
+		} else {
+			eprops := e.Properties
+			if eprops == nil {
+				return fmt.Errorf("edge needs properties for DeleteEdge")
+			}
+			geprops := ge.Properties
+			if geprops == nil {
+				log.Debugf("Missing props. Deleted edge: %v from graph\n", ge)
+				continue
+			}
+
+			if eprops["selector"] == geprops["selector"] {
+				log.Infof("Found Edge. Deleted edge: %v from graph\n", ge)
+				continue
+			} else {
+				eList = append(eList, ge)
+			}
 		}
 	}
 
-	log.Debugf("Edge not found in graph: %v\n", e)
+	g.Edges = eList
 
 	return nil
 }
@@ -392,18 +408,31 @@ func PruneGraph(g *Graph, sel string) (*Graph, error) {
 		return nil, err
 	}
 
-	for _, e := range newGraph.Edges {
+	eList := make([]*Edge, len(newGraph.Edges))
+	copy(eList, newGraph.Edges)
+
+	for _, e := range eList {
 		if e.Properties != nil {
-			log.Infof("Prune, edge: %s [%s] ? %s", e.Name, e.Properties["selector"], sel)
+			//log.Infof("Prune, edge: %s [%s] ? %s", e.Name, e.Properties["selector"], sel)
 			val, ok := e.Properties["selector"]
-			log.Infof("val: %s ok: [%v]", val, ok)
+			//log.Infof("val: %s ok: [%v]", val, ok)
 			if ok {
 				if val != sel {
-					log.Infof("Deleting Edge- not selected: %v\n", e)
+					//log.Infof("Deleting Edge- not selected: %v\n", e)
+
+					//log.Infof("before delete edge")
+					//newGraph.PrintGraph()
+
 					err = newGraph.DeleteEdge(e)
 					if err != nil {
 						return nil, err
 					}
+
+					//log.Infof("adter delete edge")
+					//newGraph.PrintGraph()
+
+				} else {
+					log.Infof("Edge selected: %v\n", e)
 				}
 			} else {
 				log.Infof("Deleting Edge- no selector: %v\n", e)

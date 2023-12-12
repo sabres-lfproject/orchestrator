@@ -1,0 +1,156 @@
+  {
+    "connectivity-service": {
+      "core-5g": {
+        "endpoint": "http://webui.omec.svc:5000/config"
+      }
+    },
+    "description": "Sabres Slice 1",
+    "device": [
+      {
+        "device-id": "ue-1",
+        "display-name": "UE 1",
+        "sim-card": "sim-1"
+      },
+      {
+        "device-id": "ue-2",
+        "display-name": "UE 2",
+        "sim-card": "sim-2"
+      },
+      {
+        "device-id": "ue-3",
+        "display-name": "UE 3",
+        "sim-card": "sim-3"
+      },
+      {
+        "device-id": "ue-4",
+        "display-name": "UE 4",
+        "sim-card": "sim-4"
+      },
+      {
+        "device-id": "ue-5",
+        "display-name": "UE 5",
+        "sim-card": "sim-5"
+      }
+    ],
+    "device-group": [
+      {
+        "device": [
+          {
+            "device-id": "ue-4",
+            "enable": true
+          },
+          {
+            "device-id": "ue-5",
+            "enable": true
+          },
+          {
+            "device-id": "ue-1",
+            "enable": true
+          },
+          {
+            "device-id": "ue-2",
+            "enable": true
+          },
+          {
+            "device-id": "ue-3",
+            "enable": true
+          }
+        ],
+        "device-group-id": "device-group-1",
+        "display-name": "Sabres Users",
+        "ip-domain": "ip-pool-1",
+        "mbr": {
+          "downlink": 1000000,
+          "uplink": 1000000
+        },
+        "traffic-class": "class-1"
+      }
+    ],
+    "display-name": "Sabres Site",
+    "imsi-definition": {
+      "enterprise": 1,
+      "format": "CCCNNEESSSSSSSS",
+      "mcc": "208",
+      "mnc": "93"
+    },
+    "ip-domain": [
+      {
+        "admin-status": "ENABLE",
+        "display-name": "IP pool",
+        "dnn": "internet",
+        "dns-primary": "8.8.8.8",
+        "ip-domain-id": "ip-pool-1",
+        "mtu": 1460,
+        "subnet": "172.250.0.0/16"
+      }
+    ],
+    "sim-card": [
+      {
+        "display-name": "SIM 5",
+        "imsi": "208930100007491",
+        "sim-id": "sim-5"
+      },
+      {
+        "display-name": "SIM 1",
+        "imsi": "208930100007487",
+        "sim-id": "sim-1"
+      },
+      {
+        "display-name": "SIM 2",
+        "imsi": "208930100007488",
+        "sim-id": "sim-2"
+      },
+      {
+        "display-name": "SIM 3",
+        "imsi": "208930100007489",
+        "sim-id": "sim-3"
+      },
+      {
+        "display-name": "SIM 4",
+        "imsi": "208930100007490",
+        "sim-id": "sim-4"
+      }
+    ],
+    "site-id": "site-1",
+    "slice": [
+      {
+        "connectivity-service": "5g",
+        "default-behavior": "ALLOW-ALL",
+        "device-group": [
+          {
+            "device-group": "device-group-1",
+            "enable": true
+          }
+        ],
+        "display-name": "Sabres Slice",
+        "filter": null,
+        "mbr": {
+          "downlink": 5000000,
+          "uplink": 10000000
+        },
+        "priority-traffic-rule": null,
+        "sd": "010203",
+        "slice-id": "slice-1",
+        "sst": "1",
+        "upf": "upf-1"
+      }
+    ],
+    "small-cell": [
+      {
+        "address": "gnb1",
+        "display-name": "gNodeB 1",
+        "enable": true,
+        "small-cell-id": "gnb-1",
+        "tac": "0001"
+      }
+    ],
+    "upf": [
+      {
+        "address": "upf",
+        "config-endpoint": "http://upf-http.omec.svc:8080",
+        "display-name": "Sabres UPF",
+        "port": 8805,
+        "upf-id": "upf-1"
+      }
+    ]
+  }

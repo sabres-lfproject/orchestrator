@@ -8,7 +8,7 @@ all: clean code mock
 
 protobuf: protobuf-inventory protobuf-discovery protobuf-networking
 
-code: inventory discovery networking
+code: inventory discovery networking sdcore
 
 mock: build/dmock
 
@@ -17,6 +17,8 @@ inventory: build/iservice build/ictl
 discovery: build/dservice build/dscanner build/dctl
 
 networking: build/snet build/snctl
+
+sdcore: build/sdcli
 
 
 test:
@@ -44,6 +46,9 @@ build/snet: sabres/network/service/main.go | build protobuf-inventory protobuf-n
 	go build -ldflags=$(LDFLAGS) -o $@ $<
 
 build/snctl: sabres/network/cli/main.go | build protobuf-networking
+	go build -ldflags=$(LDFLAGS) -o $@ $<
+
+build/sdcli: sabres/sd-core-interface/main.go
 	go build -ldflags=$(LDFLAGS) -o $@ $<
 
 build:

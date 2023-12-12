@@ -1,0 +1,24 @@
+      {
+        "device": [
+          {
+            "device-id": "ue-5",
+            "enable": true
+          },
+          {
+            "device-id": "ue-1",
+            "enable": true
+          },
+          {
+            "device-id": "ue-3",
+            "enable": true
+          }
+        ],
+        "device-group-id": "device-group-2",
+        "display-name": "Sabres Users",
+        "ip-domain": "ip-pool-1",
+        "mbr": {
+          "downlink": 1000000,
+          "uplink": 1000000
+        },
+        "traffic-class": "class-1"
+      }

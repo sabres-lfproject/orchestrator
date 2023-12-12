@@ -158,9 +158,9 @@ func createInventoryGraph() (*graph.Graph, error) {
 
 					ma := make(map[string]string)
 
-					ma["bw"] = fmt.Sprintf("%s", link.Bandwidth)
-					ma["lat"] = fmt.Sprintf("%s", link.Latency)
-					ma["jit"] = fmt.Sprintf("%s", link.Jitter)
+					ma["bw"] = fmt.Sprintf("%d", link.Bandwidth)
+					ma["lat"] = fmt.Sprintf("%d", link.Latency)
+					ma["jit"] = fmt.Sprintf("%d", link.Jitter)
 					ma["uuid"] = link.Uuid
 					ma["name"] = net.Name
 					ma["selector"] = io.Resource.Parent
@@ -207,8 +207,9 @@ func (s *NetworkServer) CreateGraph(ctx context.Context, req *proto.CreateGraphR
 	}
 
 	mutex.Lock()
-	GlobalGraph = g
 	defer mutex.Unlock()
+
+	GlobalGraph = g
 
 	return &proto.CreateGraphResponse{}, nil
 }
@@ -221,8 +222,9 @@ func (s *NetworkServer) DeleteGraph(ctx context.Context, req *proto.DeleteGraphR
 	}
 
 	mutex.Lock()
-	GlobalGraph = nil
 	defer mutex.Unlock()
+
+	GlobalGraph = nil
 
 	return &proto.DeleteGraphResponse{}, nil
 }
@@ -275,8 +277,33 @@ func (s *NetworkServer) RequestSolution(ctx context.Context, req *proto.SolveReq
 		return nil, fmt.Errorf("graph not found, must be created first.")
 	}
 
+	gg, err := GlobalGraph.DeepCopy()
+	if err != nil {
+		return nil, err
+	}
+
 	c := &cbs.CBSRequest{}
-	c.Constraints = req.Constraints
+	modConstraints := req.Constraints
+	for _, cc := range modConstraints {
+		if cc.Object == "cpu" {
+			// for cbs, we need a mechanism to tell cbs that we specifically
+			// want to include this node in our graph
+			if len(cc.Vertices) < 1 {
+				return nil, fmt.Errorf("constraint not formatted correctly")
+			}
+			v := cc.Vertices[0]
+
+			ok, vertex := gg.FindVertex(&graph.Vertex{Name: v})
+			if !ok {
+				return nil, fmt.Errorf("couldnt find constraint vertex in graph")
+			}
+
+			vertex.Properties["endpoint"] = "yes"
+			log.Infof("Updating vertex info: %v", vertex)
+		}
+	}
+
+	c.Constraints = modConstraints
 
 	// TODO: selector only to be used on edges
 	// todo is to manage that for later on with more variables
@@ -294,16 +321,30 @@ func (s *NetworkServer) RequestSolution(ctx context.Context, req *proto.SolveReq
 	log.Infof("selector for solving: %s\n", selector)
 
 	log.Infof("global graph:\n")
-	GlobalGraph.PrintGraph()
+	gg.PrintGraph()
 
 	if selector != "" {
-		g, err := graph.PruneGraph(GlobalGraph, selector)
+		g, err := graph.PruneGraph(gg, selector)
 		if err != nil {
 			return nil, err
 		}
-		c.Graph = g
+
+		k, err := g.DeepCopy()
+		if err != nil {
+			return nil, err
+		}
+
+		log.Infof("after prune graph:\n")
+		k.PrintGraph()
+		c.Graph = k
+
 	} else {
-		c.Graph = GlobalGraph
+		log.Infof("selector not set, using primary graph")
+		var err error
+		c.Graph, err = gg.DeepCopy()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// take constraints, create json

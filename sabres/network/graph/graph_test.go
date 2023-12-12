@@ -257,3 +257,76 @@ func TestGraphPrune(t *testing.T) {
 	}
 
 }
+
+func TestGraphPruneMultipleEdges(t *testing.T) {
+
+	name := "test-prune-edges"
+	G := &Graph{Name: name}
+
+	// create 3 vertex in a line
+	v1 := &Vertex{Name: "1", Properties: map[string]string{"cpu": "1"}}
+	v2 := &Vertex{Name: "2", Properties: map[string]string{"cpu": "2"}}
+	v3 := &Vertex{Name: "3", Properties: map[string]string{"cpu": "3"}}
+
+	err := G.AddVertexObj(v1)
+	if err != nil {
+		t.Errorf("Failed to add vertex 1: %v\n", err)
+	}
+
+	err = G.AddVertexObj(v2)
+	if err != nil {
+		t.Errorf("Failed to add vertex 2: %v\n", err)
+	}
+
+	err = G.AddVertexObj(v3)
+	if err != nil {
+		t.Errorf("Failed to add vertex 3: %v\n", err)
+	}
+
+	_, err = G.AddEdge(v1, v2, map[string]string{"bw": "1", "selector": "a", "uuid": "1"})
+	if err != nil {
+		t.Errorf("Failed to add edge 1: %v\n", err)
+	}
+
+	_, err = G.AddEdge(v2, v3, map[string]string{"bw": "2", "selector": "a", "uuid": "2"})
+	if err != nil {
+		t.Errorf("Failed to add edge 2: %v\n", err)
+	}
+
+	_, err = G.AddEdge(v3, v1, map[string]string{"bw": "3", "selector": "a", "uuid": "3"})
+	if err != nil {
+		t.Errorf("Failed to add edge 3: %v\n", err)
+	}
+
+	GP, err := G.DeepCopy()
+	if err != nil {
+		t.Errorf("Failed to create deep copy: %v\n", err)
+	}
+
+	_, err = G.AddEdge(v3, v1, map[string]string{"bw": "3", "uuid": "30"})
+	if err != nil {
+		t.Errorf("Failed to add edge 3: %v\n", err)
+	}
+
+	_, err = G.AddEdge(v2, v3, map[string]string{"bw": "3", "selector": "b", "uuid": "20"})
+	if err != nil {
+		t.Errorf("Failed to add edge 2: %v\n", err)
+	}
+
+	_, err = G.AddEdge(v1, v2, map[string]string{"bw": "3", "selector": "", "uuid": "10"})
+	if err != nil {
+		t.Errorf("Failed to add edge 1: %v\n", err)
+	}
+
+	gp, err := PruneGraph(G, "a")
+	if err != nil {
+		t.Errorf("Failed to prune graph: %v\n", err)
+
+	}
+
+	b := reflect.DeepEqual(gp, GP)
+	if !b {
+		t.Errorf("Reflect of copies not equal\n")
+	}
+
+}
