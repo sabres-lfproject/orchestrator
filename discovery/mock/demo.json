@@ -1,0 +1,407 @@
+[
+{
+    "name": "sdcore1",
+    "uuid": "00000000-0000-0000-0000-000000000001",
+    "notes": "mocked resource: aether's sdcore 1",
+    "phy": {
+            "cores": 8,
+            "memory": 32,
+            "storage": 192,
+            "network": 1000
+    },
+    "virt": {
+        "cores": 16
+    },
+    "flags": {
+        "simd128": true,
+        "simd256": true,
+        "simd512": false,
+        "aesni": true,
+        "rdrand": true,
+        "vmx": true
+    }
+},
+{
+    "name": "sdcore2",
+    "uuid": "00000000-0000-0000-0000-000000000002",
+    "notes": "mocked resource: aether's sdcore 2",
+    "phy": {
+            "cores": 8,
+            "memory": 32,
+            "storage": 192,
+            "network": 1000
+    },
+    "virt": {
+        "cores": 16
+    },
+    "flags": {
+        "simd128": true,
+        "simd256": true,
+        "simd512": false,
+        "aesni": true,
+        "rdrand": true,
+        "vmx": true
+    }
+},
+{
+    "name": "alpha",
+    "uuid": "00000000-0000-0000-0000-000000000003",
+    "notes": "mocked resource: alpha router",
+    "phy": {
+            "cores": 2,
+            "memory": 8,
+            "storage": 40,
+            "network": 1000
+    },
+    "virt": {
+        "cores": 2
+    },
+    "flags": {
+        "simd128": true,
+        "simd256": true,
+        "simd512": false,
+        "aesni": true,
+        "rdrand": true,
+        "vmx": true
+    }
+},
+{
+    "name": "bravo",
+    "uuid": "00000000-0000-0000-0000-000000000004",
+    "notes": "mocked resource: bravo router",
+    "phy": {
+            "cores": 2,
+            "memory": 8,
+            "storage": 40,
+            "network": 1000
+    },
+    "virt": {
+        "cores": 2
+    },
+    "flags": {
+        "simd128": true,
+        "simd256": true,
+        "simd512": false,
+        "aesni": true,
+        "rdrand": true,
+        "vmx": true
+    }
+},
+{
+    "name": "core",
+    "uuid": "00000000-0000-0000-0000-000000000005",
+    "notes": "mocked resource: core network",
+    "phy": {
+            "cores": 2,
+            "memory": 8,
+            "storage": 40,
+            "network": 1000
+    },
+    "virt": {
+        "cores": 2
+    },
+    "flags": {
+        "simd128": true,
+        "simd256": true,
+        "simd512": false,
+        "aesni": true,
+        "rdrand": true,
+        "vmx": true
+    }
+},
+{
+    "name": "yanky",
+    "uuid": "00000000-0000-0000-0000-000000000006",
+    "notes": "mocked resource: yanky router",
+    "phy": {
+            "cores": 2,
+            "memory": 8,
+            "storage": 40,
+            "network": 1000
+    },
+    "virt": {
+        "cores": 2
+    },
+    "flags": {
+        "simd128": true,
+        "simd256": true,
+        "simd512": false,
+        "aesni": true,
+        "rdrand": true,
+        "vmx": true
+    }
+},
+{
+    "name": "zulu",
+    "uuid": "00000000-0000-0000-0000-000000000007",
+    "notes": "mocked resource: zulu router",
+    "phy": {
+            "cores": 2,
+            "memory": 8,
+            "storage": 40,
+            "network": 1000
+    },
+    "virt": {
+        "cores": 2
+    },
+    "flags": {
+        "simd128": true,
+        "simd256": true,
+        "simd512": false,
+        "aesni": true,
+        "rdrand": true,
+        "vmx": true
+    }
+},
+{
+    "name": "overlay-network",
+    "uuid": "00000000-0000-0000-0000-000000000010",
+    "notes": "mocked network resource: overlay with sabres",
+    "network": {
+        "overlay": true,
+        "adjlist": [
+            {
+                "uuid": "00000000-0000-0000-0000-000000000012",
+                "srcResource": "00000000-0000-0000-0000-000000000001",
+                "dstResource": "00000000-0000-0000-0000-000000000002",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000013",
+                "srcResource": "00000000-0000-0000-0000-000000000001",
+                "dstResource": "00000000-0000-0000-0000-000000000003",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000014",
+                "srcResource": "00000000-0000-0000-0000-000000000001",
+                "dstResource": "00000000-0000-0000-0000-000000000004",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000015",
+                "srcResource": "00000000-0000-0000-0000-000000000001",
+                "dstResource": "00000000-0000-0000-0000-000000000005",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000016",
+                "srcResource": "00000000-0000-0000-0000-000000000001",
+                "dstResource": "00000000-0000-0000-0000-000000000006",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000017",
+                "srcResource": "00000000-0000-0000-0000-000000000001",
+                "dstResource": "00000000-0000-0000-0000-000000000007",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000023",
+                "srcResource": "00000000-0000-0000-0000-000000000002",
+                "dstResource": "00000000-0000-0000-0000-000000000003",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000024",
+                "srcResource": "00000000-0000-0000-0000-000000000002",
+                "dstResource": "00000000-0000-0000-0000-000000000004",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000025",
+                "srcResource": "00000000-0000-0000-0000-000000000002",
+                "dstResource": "00000000-0000-0000-0000-000000000005",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000026",
+                "srcResource": "00000000-0000-0000-0000-000000000002",
+                "dstResource": "00000000-0000-0000-0000-000000000006",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000027",
+                "srcResource": "00000000-0000-0000-0000-000000000002",
+                "dstResource": "00000000-0000-0000-0000-000000000006",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000034",
+                "srcResource": "00000000-0000-0000-0000-000000000003",
+                "dstResource": "00000000-0000-0000-0000-000000000004",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000035",
+                "srcResource": "00000000-0000-0000-0000-000000000003",
+                "dstResource": "00000000-0000-0000-0000-000000000005",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000036",
+                "srcResource": "00000000-0000-0000-0000-000000000003",
+                "dstResource": "00000000-0000-0000-0000-000000000006",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000037",
+                "srcResource": "00000000-0000-0000-0000-000000000003",
+                "dstResource": "00000000-0000-0000-0000-000000000007",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000045",
+                "srcResource": "00000000-0000-0000-0000-000000000004",
+                "dstResource": "00000000-0000-0000-0000-000000000005",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000046",
+                "srcResource": "00000000-0000-0000-0000-000000000004",
+                "dstResource": "00000000-0000-0000-0000-000000000006",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000047",
+                "srcResource": "00000000-0000-0000-0000-000000000004",
+                "dstResource": "00000000-0000-0000-0000-000000000007",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000056",
+                "srcResource": "00000000-0000-0000-0000-000000000005",
+                "dstResource": "00000000-0000-0000-0000-000000000006",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000057",
+                "srcResource": "00000000-0000-0000-0000-000000000005",
+                "dstResource": "00000000-0000-0000-0000-000000000007",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000067",
+                "srcResource": "00000000-0000-0000-0000-000000000006",
+                "dstResource": "00000000-0000-0000-0000-000000000007",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            }
+        ]
+    }
+},
+{
+    "name": "data-network",
+    "uuid": "00000000-0000-0000-0000-000000000100",
+    "notes": "mocked network resource: data plane network",
+    "network": {
+        "overlay": true,
+        "adjlist": [
+            {
+                "uuid": "00000000-0000-0000-0000-000000000130",
+                "srcResource": "00000000-0000-0000-0000-000000000001",
+                "dstResource": "00000000-0000-0000-0000-000000000003",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000140",
+                "srcResource": "00000000-0000-0000-0000-000000000001",
+                "dstResource": "00000000-0000-0000-0000-000000000004",
+                "bandwidth": 100,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000260",
+                "srcResource": "00000000-0000-0000-0000-000000000002",
+                "dstResource": "00000000-0000-0000-0000-000000000006",
+                "bandwidth": 200,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000270",
+                "srcResource": "00000000-0000-0000-0000-000000000002",
+                "dstResource": "00000000-0000-0000-0000-000000000007",
+                "bandwidth": 1000,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000340",
+                "srcResource": "00000000-0000-0000-0000-000000000003",
+                "dstResource": "00000000-0000-0000-0000-000000000004",
+                "bandwidth": 600,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000350",
+                "srcResource": "00000000-0000-0000-0000-000000000003",
+                "dstResource": "00000000-0000-0000-0000-000000000005",
+                "bandwidth": 500,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000360",
+                "srcResource": "00000000-0000-0000-0000-000000000003",
+                "dstResource": "00000000-0000-0000-0000-000000000006",
+                "bandwidth": 300,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000450",
+                "srcResource": "00000000-0000-0000-0000-000000000004",
+                "dstResource": "00000000-0000-0000-0000-000000000005",
+                "bandwidth": 600,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000470",
+                "srcResource": "00000000-0000-0000-0000-000000000004",
+                "dstResource": "00000000-0000-0000-0000-000000000007",
+                "bandwidth": 200,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000560",
+                "srcResource": "00000000-0000-0000-0000-000000000005",
+                "dstResource": "00000000-0000-0000-0000-000000000006",
+                "bandwidth": 600,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000570",
+                "srcResource": "00000000-0000-0000-0000-000000000005",
+                "dstResource": "00000000-0000-0000-0000-000000000007",
+                "bandwidth": 500,
+                "linkType": "ethernet"
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000670",
+                "srcResource": "00000000-0000-0000-0000-000000000006",
+                "dstResource": "00000000-0000-0000-0000-000000000007",
+                "bandwidth": 600,
+                "linkType": "ethernet"
+            }
+        ]
+    }
+}
+]
