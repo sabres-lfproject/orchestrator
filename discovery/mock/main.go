@@ -75,38 +75,36 @@ func main() {
 		c.Data(http.StatusOK, "application/json", []byte("pong"))
 	})
 
-	var mockSliceData []map[string]interface{}
-	mockSliceStr, err := ioutil.ReadFile(fmt.Sprintf("%s/slice.json", datadir))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = json.Unmarshal(mockSliceStr, &mockSliceData)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	r.GET("/aether-roc-api/aether/v2.1.x/enterprise/site", func(c *gin.Context) {
+		var mockSliceData []map[string]interface{}
+		mockSliceStr, err := ioutil.ReadFile(fmt.Sprintf("%s/slice.json", datadir))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = json.Unmarshal(mockSliceStr, &mockSliceData)
+		if err != nil {
+			log.Fatal(err)
+		}
 		c.JSON(http.StatusOK, mockSliceData)
 	})
 
-	var mockResourceData []map[string]interface{}
-	mockResourceStr, err := ioutil.ReadFile(fmt.Sprintf("%s/resources.json", datadir))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = json.Unmarshal(mockResourceStr, &mockResourceData)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	r.GET("/resources", func(c *gin.Context) {
+		var mockResourceData []map[string]interface{}
+		mockResourceStr, err := ioutil.ReadFile(fmt.Sprintf("%s/resources.json", datadir))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = json.Unmarshal(mockResourceStr, &mockResourceData)
+		if err != nil {
+			log.Fatal(err)
+		}
 		c.JSON(http.StatusOK, mockResourceData)
 	})
 
 	r.GET("/mock", func(c *gin.Context) {
-		err = AddMockToEtcd()
+		err := AddMockToEtcd()
 		if err != nil {
 			c.JSON(404, "failed")
 			log.Errorf("%v\n", err)
