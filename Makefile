@@ -6,9 +6,9 @@ LDFLAGS = "-X pulwar.isi.edu/sabres/orchestrator/pkg/common.Version=$(VERSION)"
 #all: docker
 all: clean code mock
 
-protobuf: protobuf-inventory protobuf-discovery protobuf-networking
+protobuf: protobuf-inventory protobuf-discovery protobuf-networking protobuf-management
 
-code: inventory discovery networking sdcore
+code: inventory discovery networking sdcore manager
 
 mock: build/dmock
 
@@ -19,6 +19,8 @@ discovery: build/dservice build/dscanner build/dctl
 networking: build/snet build/snctl
 
 sdcore: build/sdcli
+
+manager: build/smgmt build/scli
 
 
 test:
@@ -51,6 +53,13 @@ build/snctl: sabres/network/cli/main.go | build protobuf-networking
 build/sdcli: sabres/sd-core-interface/main.go
 	go build -ldflags=$(LDFLAGS) -o $@ $<
 
+build/smgmt: sabres/manager/service/main.go | build protobuf-inventory protobuf-networking protobuf-management
+	go build -ldflags=$(LDFLAGS) -o $@ $<
+
+build/sctl: sabres/manager/cli/main.go | build protobuf-management
+	go build -ldflags=$(LDFLAGS) -o $@ $<
+
+
 build:
 	mkdir -p build
 
@@ -71,6 +80,12 @@ protobuf-networking:
 	protoc -I=sabres/network/protocol --go_out=sabres/network/protocol --go_opt=paths=source_relative \
 		--go-grpc_out=sabres/network/protocol --go-grpc_opt=paths=source_relative  \
 		 sabres/network/protocol/*.proto
+
+protobuf-management:
+	protoc -I=sabres/manager/protocol --go_out=sabres/manager/protocol --go_opt=paths=source_relative \
+		--proto_path=sabres/ \
+		--go-grpc_out=sabres/manager/protocol --go-grpc_opt=paths=source_relative  \
+		 sabres/manager/protocol/*.proto
 
 test:
 	go test -v ./...

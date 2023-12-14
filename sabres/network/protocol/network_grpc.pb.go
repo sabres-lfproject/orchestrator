@@ -22,6 +22,7 @@ const (
 	Network_CreateGraph_FullMethodName     = "/netproto.Network/CreateGraph"
 	Network_DeleteGraph_FullMethodName     = "/netproto.Network/DeleteGraph"
 	Network_ShowGraph_FullMethodName       = "/netproto.Network/ShowGraph"
+	Network_GetGraph_FullMethodName        = "/netproto.Network/GetGraph"
 	Network_RequestSolution_FullMethodName = "/netproto.Network/RequestSolution"
 	Network_SetCBSLocation_FullMethodName  = "/netproto.Network/SetCBSLocation"
 )
@@ -33,6 +34,7 @@ type NetworkClient interface {
 	CreateGraph(ctx context.Context, in *CreateGraphRequest, opts ...grpc.CallOption) (*CreateGraphResponse, error)
 	DeleteGraph(ctx context.Context, in *DeleteGraphRequest, opts ...grpc.CallOption) (*DeleteGraphResponse, error)
 	ShowGraph(ctx context.Context, in *ShowGraphRequest, opts ...grpc.CallOption) (*ShowGraphResponse, error)
+	GetGraph(ctx context.Context, in *GetGraphRequest, opts ...grpc.CallOption) (*GetGraphResponse, error)
 	RequestSolution(ctx context.Context, in *SolveRequest, opts ...grpc.CallOption) (*SolveResponse, error)
 	SetCBSLocation(ctx context.Context, in *SetCBSRequest, opts ...grpc.CallOption) (*SetCBSResponse, error)
 }
@@ -72,6 +74,15 @@ func (c *networkClient) ShowGraph(ctx context.Context, in *ShowGraphRequest, opt
 	return out, nil
 }
 
+func (c *networkClient) GetGraph(ctx context.Context, in *GetGraphRequest, opts ...grpc.CallOption) (*GetGraphResponse, error) {
+	out := new(GetGraphResponse)
+	err := c.cc.Invoke(ctx, Network_GetGraph_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *networkClient) RequestSolution(ctx context.Context, in *SolveRequest, opts ...grpc.CallOption) (*SolveResponse, error) {
 	out := new(SolveResponse)
 	err := c.cc.Invoke(ctx, Network_RequestSolution_FullMethodName, in, out, opts...)
@@ -97,6 +108,7 @@ type NetworkServer interface {
 	CreateGraph(context.Context, *CreateGraphRequest) (*CreateGraphResponse, error)
 	DeleteGraph(context.Context, *DeleteGraphRequest) (*DeleteGraphResponse, error)
 	ShowGraph(context.Context, *ShowGraphRequest) (*ShowGraphResponse, error)
+	GetGraph(context.Context, *GetGraphRequest) (*GetGraphResponse, error)
 	RequestSolution(context.Context, *SolveRequest) (*SolveResponse, error)
 	SetCBSLocation(context.Context, *SetCBSRequest) (*SetCBSResponse, error)
 	mustEmbedUnimplementedNetworkServer()
@@ -114,6 +126,9 @@ func (UnimplementedNetworkServer) DeleteGraph(context.Context, *DeleteGraphReque
 }
 func (UnimplementedNetworkServer) ShowGraph(context.Context, *ShowGraphRequest) (*ShowGraphResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ShowGraph not implemented")
+}
+func (UnimplementedNetworkServer) GetGraph(context.Context, *GetGraphRequest) (*GetGraphResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetGraph not implemented")
 }
 func (UnimplementedNetworkServer) RequestSolution(context.Context, *SolveRequest) (*SolveResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RequestSolution not implemented")
@@ -188,6 +203,24 @@ func _Network_ShowGraph_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Network_GetGraph_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetGraphRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServer).GetGraph(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Network_GetGraph_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServer).GetGraph(ctx, req.(*GetGraphRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Network_RequestSolution_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SolveRequest)
 	if err := dec(in); err != nil {
@@ -242,6 +275,10 @@ var Network_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ShowGraph",
 			Handler:    _Network_ShowGraph_Handler,
+		},
+		{
+			MethodName: "GetGraph",
+			Handler:    _Network_GetGraph_Handler,
 		},
 		{
 			MethodName: "RequestSolution",

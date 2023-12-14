@@ -1,0 +1,44 @@
+syntax = 'proto3';
+
+option go_package = "pulwar.isi.edu/sabres/orchestrator/sabres/manager/protocol";
+
+//import "pulwar.isi.edu/sabres/orchestrator/sabres/network/protocol/network.proto";
+import "network/protocol/network.proto";
+
+package mgmtproto;
+
+service Manager {
+  rpc CreateSlice (CreateSliceRequest) returns (CreateSliceResponse) {}
+  rpc DeleteSlice (DeleteSliceRequest) returns (DeleteSliceResponse) {}
+  rpc ShowSlice (ShowSliceRequest) returns (ShowSliceResponse) {}
+  rpc ConfigureSlice (ConfigureSliceRequest) returns (ConfigureSliceResponse) {}
+}
+
+// TODO: maybe make all these google empty protobufs
+message CreateSliceRequest {
+    string cbsAddr = 1;
+    string netAddr = 2;
+    string invAddr = 3;
+    repeated netproto.Constraint constraints = 4;
+}
+message CreateSliceResponse {
+    string uuid = 1;
+}
+message DeleteSliceRequest {
+    string invAddr = 1;
+    string uuid = 2;
+}
+message DeleteSliceResponse {}
+message ShowSliceRequest {
+    string invAddr = 1;
+}
+message ShowSliceResponse {
+    string jsonResponse = 1;
+}
+message ConfigureSliceRequest {
+    string invAddr = 1;
+    string uuid = 2;
+}
+message ConfigureSliceResponse {
+    string response = 1;
+}

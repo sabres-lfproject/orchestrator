@@ -44,6 +44,22 @@ type Graph struct {
 	Edges    []*Edge   `yaml:"edges" json:"edges"`
 }
 
+func FromJson(bstring []byte) (*Graph, error) {
+
+	G := &Graph{}
+	err := json.Unmarshal(bstring, G)
+	if err != nil {
+		return nil, err
+	}
+
+	return G, nil
+}
+
+func (g *Graph) ToJson() (string, error) {
+	jsonG, err := json.Marshal(g)
+	return string(jsonG), err
+}
+
 func (g *Graph) PrintGraph() {
 	fmt.Printf("Graph: %s\n", g.Name)
 	if len(g.Vertices) <= 0 {

@@ -251,6 +251,28 @@ func (s *NetworkServer) ShowGraph(ctx context.Context, req *proto.ShowGraphReque
 	return &proto.ShowGraphResponse{Exists: true, Dotviz: dotviz}, nil
 }
 
+func (s *NetworkServer) GetGraph(ctx context.Context, req *proto.GetGraphRequest) (*proto.GetGraphResponse, error) {
+	if req == nil {
+		errMsg := fmt.Sprintf("GetGraph: Nil Request")
+		log.Errorf("%s", errMsg)
+		return nil, fmt.Errorf("%s", errMsg)
+	}
+
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	if GlobalGraph == nil {
+		return nil, fmt.Errorf("graph not defined. run create first.")
+	}
+
+	jsonGraph, err := GlobalGraph.ToJson()
+	if err != nil {
+		return nil, err
+	}
+
+	return &proto.GetGraphResponse{Graph: jsonGraph}, nil
+}
+
 func (s *NetworkServer) RequestSolution(ctx context.Context, req *proto.SolveRequest) (*proto.SolveResponse, error) {
 	if req == nil {
 		errMsg := fmt.Sprintf("Solve: Nil Request")

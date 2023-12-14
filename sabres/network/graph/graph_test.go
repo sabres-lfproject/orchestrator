@@ -1,6 +1,8 @@
 package graph
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"reflect"
 	"testing"
 
@@ -329,4 +331,38 @@ func TestGraphPruneMultipleEdges(t *testing.T) {
 		t.Errorf("Reflect of copies not equal\n")
 	}
 
+}
+
+func TestLoadingGraph(t *testing.T) {
+	contents, err := ioutil.ReadFile("test_graph_1.json")
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+
+	obj := &Graph{}
+	json.Unmarshal(contents, obj)
+	log.Infof("%+v\n", obj)
+
+	G, err := FromJson(contents)
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	log.Infof("out of json: %v\n", G)
+
+	gg, err := G.DeepCopy()
+
+	assert.True(t, reflect.DeepEqual(G, gg), "graphs should be equal now")
+
+	/*
+		jsonG, err := gg.ToJson()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+
+			trimmed := strings.ReplaceAll(string(contents), "\n", "")
+			nospace := regexp.MustCompile(`\s+`)
+			valid := nospace.ReplaceAllString(trimmed, "")
+
+			assert.Equal(t, valid, jsonG, "json should be equal")
+	*/
 }

@@ -9,6 +9,7 @@ service Network {
   rpc DeleteGraph (DeleteGraphRequest) returns (DeleteGraphResponse) {}
 
   rpc ShowGraph (ShowGraphRequest) returns (ShowGraphResponse) {}
+  rpc GetGraph (GetGraphRequest) returns (GetGraphResponse) {}
 
   rpc RequestSolution(SolveRequest) returns (SolveResponse) {}
 
@@ -52,6 +53,12 @@ message ShowGraphRequest {}
 message ShowGraphResponse {
     bool exists = 1;
     string dotviz = 2;
+}
+
+// json encoding of graph structure as its not protobuf'd
+message GetGraphRequest {}
+message GetGraphResponse {
+    string graph = 1;
 }
 
 message SetCBSRequest{

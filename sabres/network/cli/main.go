@@ -44,6 +44,16 @@ func main() {
 	}
 	root.AddCommand(createNetworkItem)
 
+	getNetworkItem := &cobra.Command{
+		Use:   "get",
+		Short: "get returns the raw graph",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			getNetworkItemFunc()
+		},
+	}
+	root.AddCommand(getNetworkItem)
+
 	delNetworkItem := &cobra.Command{
 		Use:   "delete",
 		Short: "Delete the existing graph",
@@ -138,6 +148,19 @@ func showConfigFunc() {
 		if err != nil {
 			return err
 		}
+
+		return nil
+	})
+}
+
+func getNetworkItemFunc() {
+	pkg.WithNetwork(addr, func(c protocol.NetworkClient) error {
+		resp, err := c.GetGraph(context.TODO(), &protocol.GetGraphRequest{})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Printf("Graph: %s\n", resp.Graph)
 
 		return nil
 	})

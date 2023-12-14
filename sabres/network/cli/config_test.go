@@ -12,7 +12,6 @@ import (
 )
 
 func TestLoadingConfig(t *testing.T) {
-
 	_, filename, _, _ := runtime.Caller(0)
 	base := filepath.Dir(filename)
 	files, err := ioutil.ReadDir(base)
@@ -44,6 +43,5 @@ func TestLoadingConfig(t *testing.T) {
 				t.Logf("%v\n", config)
 			}
 		}
-
 	}
 }
