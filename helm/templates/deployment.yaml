@@ -164,13 +164,13 @@ spec:
           - name: INVENTORYPORT 
             value: {{.Values.orchestrator.inventory.api.port | quote}}
           - name: NETWORKHOST
-            value: {{.Values.orchestrator.network.host | quote}}
+            value: {{.Values.orchestrator.sabres.network.host | quote}}
           - name: NETWORKPORT 
-            value: {{.Values.orchestrator.network.port | quote}}
+            value: {{.Values.orchestrator.sabres.network.port | quote}}
           - name: CBSHOST
-            value: {{.Values.orchestrator.cbs.host | quote}}
+            value: {{.Values.orchestrator.sabres.cbs.host | quote}}
           - name: CBSPORT 
-            value: {{.Values.orchestrator.cbs.port | quote}}
+            value: {{.Values.orchestrator.sabres.cbs.port | quote}}
           - name: DEBUG
             value: {{.Values.orchestrator.sabres.manager.debug | quote}}
         volumeMounts:
