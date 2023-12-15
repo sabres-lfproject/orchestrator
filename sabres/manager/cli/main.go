@@ -4,14 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	cbs "pulwar.isi.edu/sabres/orchestrator/sabres/cbs/service/pkg"
+	cbspkg "pulwar.isi.edu/sabres/cbs/cbs/service/pkg"
+	invpkg "pulwar.isi.edu/sabres/orchestrator/inventory/pkg"
 	"pulwar.isi.edu/sabres/orchestrator/sabres/manager/pkg"
 	"pulwar.isi.edu/sabres/orchestrator/sabres/manager/protocol"
-	network "pulwar.isi.edu/sabres/orchestrator/sabres/network/pkg"
+	netpkg "pulwar.isi.edu/sabres/orchestrator/sabres/network/pkg"
 	proto "pulwar.isi.edu/sabres/orchestrator/sabres/network/protocol"
 )
 
@@ -41,17 +43,17 @@ func main() {
 	root.PersistentFlags().StringVarP(
 		&cbsServer, "cbsserver", "c", "localhost", "cbs service address to use")
 	root.PersistentFlags().IntVarP(
-		&cbsPort, "cbsport", "d", cbs.DefaultCBSPort, "cbs service port to use")
+		&cbsPort, "cbsport", "d", cbspkg.DefaultCBSPort, "cbs service port to use")
 
 	root.PersistentFlags().StringVarP(
 		&networkServer, "networkserver", "e", "localhost", "network service address to use")
 	root.PersistentFlags().IntVarP(
-		&networkPort, "networkport", "f", network.DefaultNetworkPort, "network service port to use")
+		&networkPort, "networkport", "f", netpkg.DefaultNetworkPort, "network service port to use")
 
 	root.PersistentFlags().StringVarP(
 		&inventoryServer, "inventoryserver", "g", "localhost", "inventory service address to use")
 	root.PersistentFlags().IntVarP(
-		&inventoryPort, "inventoryport", "h", inventory.DefaultInventoryPort, "inventory service port to use")
+		&inventoryPort, "inventoryport", "h", invpkg.DefaultInventoryPort, "inventory service port to use")
 
 	createCmd := &cobra.Command{
 		Use:   "create",
@@ -103,7 +105,7 @@ func main() {
 	}
 	deleteCmd.AddCommand(deleteNetworkSlice)
 
-	showConfig := &cobra.Command{
+	showNetworkSlice := &cobra.Command{
 		Use:   "slices",
 		Short: "Show current slices",
 		Args:  cobra.NoArgs,
@@ -113,7 +115,7 @@ func main() {
 			showNetworkSliceFunc(addr, inventoryAddr)
 		},
 	}
-	showCmd.AddCommand(showConfig)
+	showCmd.AddCommand(showNetworkSlice)
 
 	configureConfig := &cobra.Command{
 		Use:   "slice <uuid>",
@@ -122,7 +124,7 @@ func main() {
 		Run: func(cmd *cobra.Command, args []string) {
 			addr := fmt.Sprintf("%s:%d", clientServer, clientPort)
 			inventoryAddr := fmt.Sprintf("%s:%d", inventoryServer, inventoryPort)
-			configureNetworkSliceFuncs(addr, inventoryAddr, args[0])
+			configureNetworkSliceFunc(addr, inventoryAddr, args[0])
 		},
 	}
 	configureCmd.AddCommand(configureConfig)
@@ -132,25 +134,25 @@ func main() {
 
 func createNetworkSliceFunc(mgmtAddr, cbsAddr, netAddr, invAddr, fileName string) {
 
-	contents, err := io.ReadFile(fileName)
+	contents, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	constraints := make([]*proto.Constraint, 0)
 
-	err = json.Marshal(constraints, contents)
+	err = json.Unmarshal(contents, constraints)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	pkg.WithManager(mgmtAddr, func(c protocol.NetworkClient) error {
+	pkg.WithManagement(mgmtAddr, func(c protocol.ManagerClient) error {
 		fmt.Printf("sending request\n")
 		resp, err := c.CreateSlice(context.TODO(), &protocol.CreateSliceRequest{
-			CbsAddr: cbsAddr,
-			NetAddr: netAddr,
-			InvAddr: invAddr,
-			Request: constraints,
+			CbsAddr:     cbsAddr,
+			NetAddr:     netAddr,
+			InvAddr:     invAddr,
+			Constraints: constraints,
 		})
 		if err != nil {
 			log.Fatal(err)
@@ -163,7 +165,7 @@ func createNetworkSliceFunc(mgmtAddr, cbsAddr, netAddr, invAddr, fileName string
 }
 
 func deleteNetworkSliceFunc(mgmtAddr, invAddr, uuid string) {
-	pkg.WithNetwork(addr, func(c protocol.NetworkClient) error {
+	pkg.WithManagement(mgmtAddr, func(c protocol.ManagerClient) error {
 		fmt.Printf("sent request\n")
 		resp, err := c.DeleteSlice(context.TODO(), &protocol.DeleteSliceRequest{
 			InvAddr: invAddr,
@@ -180,8 +182,8 @@ func deleteNetworkSliceFunc(mgmtAddr, invAddr, uuid string) {
 	})
 }
 
-func showConfigFunc(mgmtAddr, invAddr string) {
-	pkg.WithNetwork(addr, func(c protocol.NetworkClient) error {
+func showNetworkSliceFunc(mgmtAddr, invAddr string) {
+	pkg.WithManagement(mgmtAddr, func(c protocol.ManagerClient) error {
 		resp, err := c.ShowSlice(context.TODO(), &protocol.ShowSliceRequest{
 			InvAddr: invAddr,
 		})
@@ -194,8 +196,8 @@ func showConfigFunc(mgmtAddr, invAddr string) {
 	})
 }
 
-func configureConfigFunc(mgmtAddr, invAddr, uuid string) {
-	pkg.WithNetwork(addr, func(c protocol.NetworkClient) error {
+func configureNetworkSliceFunc(mgmtAddr, invAddr, uuid string) {
+	pkg.WithManagement(mgmtAddr, func(c protocol.ManagerClient) error {
 		resp, err := c.ConfigureSlice(context.TODO(), &protocol.ConfigureSliceRequest{
 			InvAddr: invAddr,
 			Uuid:    uuid,

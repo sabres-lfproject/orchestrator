@@ -56,7 +56,7 @@ build/sdcli: sabres/sd-core-interface/main.go
 build/smgmt: sabres/manager/service/main.go | build protobuf-inventory protobuf-networking protobuf-management
 	go build -ldflags=$(LDFLAGS) -o $@ $<
 
-build/sctl: sabres/manager/cli/main.go | build protobuf-management
+build/scli: sabres/manager/cli/main.go | build protobuf-management
 	go build -ldflags=$(LDFLAGS) -o $@ $<
 
 

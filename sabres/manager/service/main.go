@@ -14,9 +14,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gitlab.com/mergetb/tech/stor"
 	"google.golang.org/grpc"
-	invpkg "pulwar.isi.edu/sabres/orchestrator/inventory/pkg"
+	cbspkg "pulwar.isi.edu/sabres/cbs/cbs/service/pkg"
 	config "pulwar.isi.edu/sabres/orchestrator/pkg"
-	cbspkg "pulwar.isi.edu/sabres/orchestrator/sabres/cbs/service/pkg"
 	"pulwar.isi.edu/sabres/orchestrator/sabres/manager/pkg"
 	proto "pulwar.isi.edu/sabres/orchestrator/sabres/manager/protocol"
 	netpkg "pulwar.isi.edu/sabres/orchestrator/sabres/network/pkg"
@@ -41,7 +40,7 @@ func (s *ManagerServer) CreateSlice(ctx context.Context, req *proto.CreateSliceR
 
 	cbsaddr := fmt.Sprintf("localhost:%d", cbspkg.DefaultCBSPort)
 	netaddr := fmt.Sprintf("localhost:%d", netpkg.DefaultNetworkPort)
-	invaddr := fmt.Sprintf("localhost:%d", invpkg.DefaultInventoryPort)
+	//invaddr := fmt.Sprintf("localhost:%d", invpkg.DefaultInventoryPort)
 
 	// set addresses based on those passed in
 	if req.CbsAddr == "" {
@@ -50,25 +49,27 @@ func (s *ManagerServer) CreateSlice(ctx context.Context, req *proto.CreateSliceR
 	if req.NetAddr == "" {
 		netaddr = req.NetAddr
 	}
-	if req.InvAddr == "" {
-		invaddr = req.InvAddr
-	}
+	/*
+		if req.InvAddr == "" {
+			invaddr = req.InvAddr
+		}
+	*/
 
 	// constraint field
-	constraints := req.Constraint
+	constraints := req.Constraints
 
 	log.Infof("constraints: %+v\n", constraints)
 
 	// TODO: check validity
 
-	err = pkg.WithNetwork(netaddr, func(c protocol.NetworkClient) error {
-		netAddrSplit := strings.Split(netAddr, ":")
-		if len(netAddrSplit) != 2 {
-			return fmt.Errorf("invalid network address: %s", netAddr)
+	err := netpkg.WithNetwork(netaddr, func(c protocol.NetworkClient) error {
+		cbsAddrSplit := strings.Split(cbsaddr, ":")
+		if len(cbsAddrSplit) != 2 {
+			return fmt.Errorf("invalid network address: %s", cbsaddr)
 		}
-		resp, err := c.SetCBSLocation(context.TODO(), &protocol.SetCBSRequest{
-			Host: netAddrSplit[0],
-			Port: netAddrSplit[1],
+		_, err := c.SetCBSLocation(context.TODO(), &protocol.SetCBSRequest{
+			Host: cbsAddrSplit[0],
+			Port: cbsAddrSplit[1],
 		})
 		if err != nil {
 			return err
@@ -82,7 +83,7 @@ func (s *ManagerServer) CreateSlice(ctx context.Context, req *proto.CreateSliceR
 
 	var cbsOut *cbspkg.JsonCBSOut
 
-	err = pkg.WithNetwork(netaddr, func(c protocol.NetworkClient) error {
+	err = netpkg.WithNetwork(netaddr, func(c protocol.NetworkClient) error {
 		resp, err := c.RequestSolution(context.TODO(), &protocol.SolveRequest{
 			Constraints: constraints,
 		})
@@ -91,7 +92,7 @@ func (s *ManagerServer) CreateSlice(ctx context.Context, req *proto.CreateSliceR
 		}
 
 		strCBSOut := resp.Response
-		err = json.Unmarshal(strCBSOut, cbsOut)
+		err = json.Unmarshal([]byte(strCBSOut), cbsOut)
 		if err != nil {
 			return err
 		}
@@ -112,7 +113,7 @@ func (s *ManagerServer) CreateSlice(ctx context.Context, req *proto.CreateSliceR
 	}
 
 	// send to etcd
-	objs := stor.Object{sliceObj}
+	objs := []stor.Object{sliceObj}
 
 	err = stor.WriteObjects(objs, true)
 	if err != nil {
@@ -174,7 +175,7 @@ func main() {
 	var debug bool
 	var port int
 
-	flag.IntVar(&port, "port", pkg.DefaultManagerPort, "set the Managerd control port")
+	flag.IntVar(&port, "port", pkg.DefaultManagementPort, "set the Managerd control port")
 	flag.BoolVar(&debug, "debug", false, "enable extra debug logging")
 
 	portStr := os.Getenv("NETWORKPORT")

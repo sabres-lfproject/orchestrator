@@ -63,5 +63,5 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20230822172742-b8732ec3820d // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230822172742-b8732ec3820d // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	pulwar.isi.edu/sabres/cbs/cbs/service v0.0.0-20231201043032-10cd5ca52570 // indirect
+	pulwar.isi.edu/sabres/cbs/cbs/service v0.0.0-20231214220325-575dbb70ecea // indirect
 )
