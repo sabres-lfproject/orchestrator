@@ -35,6 +35,11 @@ orchestrator:
       port: 15030
       image: docker.io/isilincoln/orchestrator-sabres-cbs:latest
       debug: true
+    manager:
+      host: localhost
+      port: 15035
+      image: docker.io/isilincoln/orchestrator-sabres-manager:latest
+      debug: true
   mock:
     discovery:
       image: docker.io/isilincoln/orchestrator-mock-discovery:latest

@@ -150,6 +150,38 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
+      - name: manager
+        image: {{.Values.orchestrator.sabres.manager.image | quote}}
+        ports:
+          - containerPort: {{.Values.orchestrator.sabres.manager.port }}
+        env:
+          - name: ETCDHOST
+            value: {{.Values.etcd.host | quote}}
+          - name: ETCDPORT
+            value: {{.Values.etcd.port | quote}}
+          - name: INVENTORYHOST
+            value: {{.Values.orchestrator.inventory.api.host | quote}}
+          - name: INVENTORYPORT 
+            value: {{.Values.orchestrator.inventory.api.port | quote}}
+          - name: NETWORKHOST
+            value: {{.Values.orchestrator.network.api.host | quote}}
+          - name: NETWORKPORT 
+            value: {{.Values.orchestrator.network.api.port | quote}}
+          - name: CBSHOST
+            value: {{.Values.orchestrator.cbs.api.host | quote}}
+          - name: CBSPORT 
+            value: {{.Values.orchestrator.cbs.api.port | quote}}
+          - name: DEBUG
+            value: {{.Values.orchestrator.sabres.manager.debug | quote}}
+        volumeMounts:
+        - name: {{ .Release.Name }}-vol
+          mountPath: /var/orchestrator/config.cfg
+          subPath: config.cfg
+          readOnly: true
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
       volumes:
         - name: {{ .Release.Name }}-vol
           configMap:

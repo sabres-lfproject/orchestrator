@@ -95,7 +95,7 @@ REPO ?= isilincoln
 TAG ?= latest
 #BUILD_ARGS ?= --no-cache
 
-docker: $(REGISTRY)/$(REPO)/orchestrator-inventory-api $(REGISTRY)/$(REPO)/orchestrator-discovery-api $(REGISTRY)/$(REPO)/orchestrator-mock-discovery $(REGISTRY)/$(REPO)/orchestrator-discovery-scanner $(REGISTRY)/$(REPO)/orchestrator-sabres-network
+docker: $(REGISTRY)/$(REPO)/orchestrator-inventory-api $(REGISTRY)/$(REPO)/orchestrator-discovery-api $(REGISTRY)/$(REPO)/orchestrator-mock-discovery $(REGISTRY)/$(REPO)/orchestrator-discovery-scanner $(REGISTRY)/$(REPO)/orchestrator-sabres-network $(REGISTRY)/$(REPO)/orchestrator-sabres-manager
 
 $(REGISTRY)/$(REPO)/orchestrator-inventory-api:
 	@docker build ${BUILD_ARGS} $(DOCKER_QUIET) -f inventory/service/Dockerfile -t $(@):$(TAG) .
@@ -115,6 +115,10 @@ $(REGISTRY)/$(REPO)/orchestrator-mock-discovery:
 
 $(REGISTRY)/$(REPO)/orchestrator-sabres-network:
 	@docker build ${BUILD_ARGS} $(DOCKER_QUIET) -f sabres/network/service/Dockerfile -t $(@):$(TAG) .
+	$(if ${PUSH},$(call docker-push))
+
+$(REGISTRY)/$(REPO)/orchestrator-sabres-manager:
+	@docker build ${BUILD_ARGS} $(DOCKER_QUIET) -f sabres/manager/service/Dockerfile -t $(@):$(TAG) .
 	$(if ${PUSH},$(call docker-push))
 
 define docker-push
