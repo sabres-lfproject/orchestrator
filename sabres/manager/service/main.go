@@ -178,7 +178,7 @@ func main() {
 	flag.IntVar(&port, "port", pkg.DefaultManagementPort, "set the Managerd control port")
 	flag.BoolVar(&debug, "debug", false, "enable extra debug logging")
 
-	portStr := os.Getenv("NETWORKPORT")
+	portStr := os.Getenv("MANAGERPORT")
 	if portStr != "" {
 		portInt, err := strconv.Atoi(portStr)
 		if err != nil {
