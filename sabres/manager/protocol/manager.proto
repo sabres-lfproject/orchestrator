@@ -29,9 +29,7 @@ message DeleteSliceRequest {
     string uuid = 2;
 }
 message DeleteSliceResponse {}
-message ShowSliceRequest {
-    string invAddr = 1;
-}
+message ShowSliceRequest {}
 message ShowSliceResponse {
     string jsonResponse = 1;
 }

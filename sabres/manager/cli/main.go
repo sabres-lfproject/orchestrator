@@ -46,14 +46,14 @@ func main() {
 		&cbsPort, "cbsport", "d", cbspkg.DefaultCBSPort, "cbs service port to use")
 
 	root.PersistentFlags().StringVarP(
-		&networkServer, "networkserver", "e", "localhost", "network service address to use")
+		&networkServer, "networkserver", "n", "localhost", "network service address to use")
 	root.PersistentFlags().IntVarP(
-		&networkPort, "networkport", "f", netpkg.DefaultNetworkPort, "network service port to use")
+		&networkPort, "networkport", "o", netpkg.DefaultNetworkPort, "network service port to use")
 
 	root.PersistentFlags().StringVarP(
-		&inventoryServer, "inventoryserver", "g", "localhost", "inventory service address to use")
+		&inventoryServer, "inventoryserver", "i", "localhost", "inventory service address to use")
 	root.PersistentFlags().IntVarP(
-		&inventoryPort, "inventoryport", "h", invpkg.DefaultInventoryPort, "inventory service port to use")
+		&inventoryPort, "inventoryport", "j", invpkg.DefaultInventoryPort, "inventory service port to use")
 
 	createCmd := &cobra.Command{
 		Use:   "create",
@@ -63,19 +63,19 @@ func main() {
 
 	deleteCmd := &cobra.Command{
 		Use:   "delete",
-		Short: "Create a sabres slice",
+		Short: "Delete a sabres slice",
 	}
 	root.AddCommand(deleteCmd)
 
 	showCmd := &cobra.Command{
 		Use:   "show",
-		Short: "Create a sabres slices",
+		Short: "Show all sabres slices",
 	}
 	root.AddCommand(showCmd)
 
 	configureCmd := &cobra.Command{
 		Use:   "configure",
-		Short: "Create a sabres slice",
+		Short: "Configure a sabres slice",
 	}
 	root.AddCommand(configureCmd)
 
@@ -111,8 +111,7 @@ func main() {
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			addr := fmt.Sprintf("%s:%d", clientServer, clientPort)
-			inventoryAddr := fmt.Sprintf("%s:%d", inventoryServer, inventoryPort)
-			showNetworkSliceFunc(addr, inventoryAddr)
+			showNetworkSliceFunc(addr)
 		},
 	}
 	showCmd.AddCommand(showNetworkSlice)
@@ -139,9 +138,9 @@ func createNetworkSliceFunc(mgmtAddr, cbsAddr, netAddr, invAddr, fileName string
 		log.Fatal(err)
 	}
 
-	constraints := make([]*proto.Constraint, 0)
+	var constraints []*proto.Constraint
 
-	err = json.Unmarshal(contents, constraints)
+	err = json.Unmarshal(contents, &constraints)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -182,11 +181,10 @@ func deleteNetworkSliceFunc(mgmtAddr, invAddr, uuid string) {
 	})
 }
 
-func showNetworkSliceFunc(mgmtAddr, invAddr string) {
+func showNetworkSliceFunc(mgmtAddr string) {
+	fmt.Printf("connecting to mgmt server\n")
 	pkg.WithManagement(mgmtAddr, func(c protocol.ManagerClient) error {
-		resp, err := c.ShowSlice(context.TODO(), &protocol.ShowSliceRequest{
-			InvAddr: invAddr,
-		})
+		resp, err := c.ShowSlice(context.TODO(), &protocol.ShowSliceRequest{})
 		if err != nil {
 			log.Fatal(err)
 		}

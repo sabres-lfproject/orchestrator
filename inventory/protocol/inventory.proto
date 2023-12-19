@@ -12,6 +12,9 @@ service Inventory {
   rpc ListInventoryItems (ListInventoryItemsRequest) returns (ListInventoryItemsResponse) {}
   rpc GetInventoryItem (GetInventoryItemRequest) returns (GetItemResponse) {}
   rpc GetResourceItem (GetResourceItemRequest) returns (GetItemResponse) {}
+
+  rpc UpdateInventoryManagement (UpdateInventoryRequest) returns (InventoryItemResponse) {}
+  rpc BulkUpdateManagement (BulkUpdateRequest) returns (BulkUpdateResponse) {}
 }
 
 
@@ -117,6 +120,18 @@ message InventoryItem {
     int64 version = 5;
 }
 
+message UpdateInventoryRequest {
+    string ioUuid = 1;
+    string mgmtAddr = 2;
+}
+
+message BulkUpdateRequest {
+    repeated UpdateInventoryRequest bur = 1;
+}
+
+message BulkUpdateResponse {
+    repeated InventoryItemResponse response = 1;
+}
 
 message CreateInventoryItemRequest {
     InventoryItem request = 1;

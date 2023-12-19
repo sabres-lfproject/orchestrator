@@ -299,6 +299,69 @@ func (s *InventoryServer) GetResourceItem(ctx context.Context, req *inv.GetResou
 	}, nil
 }
 
+func (s *InventoryServer) UpdateInventoryManagement(ctx context.Context, req *inv.UpdateInventoryRequest) (*inv.InventoryItemResponse, error) {
+	if req == nil {
+		errMsg := fmt.Sprintf("inv.Modifyinv.InventoryItem: Nil Request")
+		log.Errorf("%s", errMsg)
+		return nil, fmt.Errorf("%s", errMsg)
+	}
+
+	iouuid := req.IoUuid
+	err := checkUuid(iouuid)
+	if err != nil {
+		return nil, err
+	}
+
+	_, _, err = net.ParseCIDR(req.MgmtAddr)
+	if err != nil {
+		return nil, err
+	}
+
+	io := &inv.InventoryItem{Uuid: iouuid}
+
+	obj := stor.Object(io)
+
+	err = stor.Read(obj)
+	if err != nil {
+		return nil, err
+	}
+
+	io.Entity.Idtype = inv.Entity_IP
+	io.Entity.Identification = req.MgmtAddr
+
+	objs := []stor.Object{io}
+
+	err = stor.WriteObjects(objs, false)
+	if err != nil {
+		return nil, err
+	}
+
+	return &inv.InventoryItemResponse{IoUuid: iouuid}, nil
+}
+
+func (s *InventoryServer) BulkUpdateManagement(ctx context.Context, req *inv.BulkUpdateRequest) (*inv.BulkUpdateResponse, error) {
+	if req == nil {
+		errMsg := fmt.Sprintf("inv.Modifyinv.InventoryItem: Nil Request")
+		log.Errorf("%s", errMsg)
+		return nil, fmt.Errorf("%s", errMsg)
+	}
+
+	if len(req.Bur) <= 0 {
+		return nil, fmt.Errorf("empty bulk request")
+	}
+
+	respList := make([]*inv.InventoryItemResponse, 0)
+	for _, bur := range req.Bur {
+		resp, err := s.UpdateInventoryManagement(ctx, bur)
+		if err != nil {
+			return nil, err
+		}
+		respList = append(respList, resp)
+	}
+
+	return &inv.BulkUpdateResponse{Response: respList}, nil
+}
+
 func main() {
 
 	var debug bool
